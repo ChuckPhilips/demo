@@ -52,12 +52,12 @@ jobs:
 
         run: |
           echo "Updating infrastructure !!!"
-          echo "Getting images count..."
-          IMAGE_IDS=$(aws ecr list-images --repository-name "${AWS_ECR_REPOSITORY}" --region "${AWS_REGION}" | jq '.imageIds | length')
+          echo "Getting images ids..."
+          IMAGES_IDS=$(aws ecr list-images --repository-name "${AWS_ECR_REPOSITORY}" --region "${AWS_REGION}" | jq '.imageIds | length')
 
-          echo "Images ids: ${IMAGE_IDS}"
+          echo "Images ids: ${IMAGES_IDS}"
 
-          if [[ ${IMAGE_IDS} -gt 0 ]]
+          if [[ ${IMAGES_IDS} -gt 0 ]]
           then
             echo "Some images already exist, getting them..."
             images=$(aws ecr describe-images --repository-name "${AWS_ECR_REPOSITORY}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
@@ -88,12 +88,12 @@ jobs:
           file: "./backend/Dockerfile"
           push: false
 
-      - name: Update frontend
-        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
+      - name: Run Terraform
+        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
         run: |
-          echo "Updating frontend"
-          
-        
+          echo "Running Terraform with ${{ env.TF_VAR_image_tag }}"
+
+
       - name: Update backend
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
         run: echo "Updating backend"
@@ -109,3 +109,8 @@ jobs:
             ${{ env.AWS_ECR_REPO_URL }}:latest
             ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
             ${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
+
+      - name: Update frontend
+        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
+        run: |
+          echo "Updating frontend"
