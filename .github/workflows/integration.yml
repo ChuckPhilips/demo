@@ -87,19 +87,23 @@ jobs:
         with:
           context: "./backend/"
           file: "./backend/Dockerfile"
-          push: false
+          push: true
+          tags: | 
+            ${{ env.AWS_ECR_REPO_URL }}:latest
+            ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
+            ${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
 
       - name: Run Terraform
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
+        working_directory: ./infrastructure/environments/dev/
         run: |
-          echo "Running Terraform with ${{ env.TF_VAR_image_tag }}"
+          echo "terraform init"
 
-
-      - name: Update backend
+      - name: Update backend...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
         run: echo "Updating backend"
       
-      - name: Try build
+      - name: Build image...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
         uses: docker/build-push-action@v2
         with:
@@ -111,7 +115,7 @@ jobs:
             ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
             ${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
 
-      - name: Update frontend
+      - name: Update frontend...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
         run: |
           echo "Updating frontend"
