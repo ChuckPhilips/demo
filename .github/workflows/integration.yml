@@ -38,6 +38,7 @@ jobs:
           IMAGE_EXISTS: $(aws ecr list-images --repository-name ecr-simplehttp --filter tagStatus=TAGGED --region us-east-2 | jq '.imageIds[].imageTag' | grep -v null | tr -d '"' | grep -c latest)
         run: |
           echo "Updating infrastructure !!!"
+          echo "Image exists variable value: ${IMAGE_EXISTS}"
 
           if [[ ${IMAGE_EXISTS} -eq 1 ]]; then
             echo "Image exists!"
