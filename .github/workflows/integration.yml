@@ -34,18 +34,26 @@ jobs:
 
       - name: Update infrastructure
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
+        env:
+          IMAGE_EXISTS=$(aws ecr list-images --repository-name ecr-simplehttp --filter tagStatus=TAGGED --region us-east-2 | jq '.imageIds[].imageTag' | grep -v null | tr -d '"' | grep -c latest)
         run: |
-          echo "Updating infrastructure"
-          pwd
+          echo "Updating infrastructure !!!"
 
-      - name: Check if image with latest tag exists
-        run: |
-          exists=$(aws ecr list-images --repository-name ecr-simplehttp --filter tagStatus=TAGGED --region us-east-2 | jq '.imageIds[].imageTag' | grep -v null | tr -d '"' | grep -c latest)
-          if [[ $exists -eq 1 ]]; then
+          if [[ ${IMAGE_EXISTS} -eq 1 ]]; then
             echo "Image exists!"
+            echo "buildImage=false" >> $GITHUB_ENV
           else
             echo "Image does not exist!"
+            echo "buildImage=true" >> $GITHUB_ENV
           fi
+
+      - name: Building initial image...
+        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
+        uses: docker/build-push-action@v2
+        with:
+          context: "./backend/"
+          file: "./backend/Dockerfile"
+          push: false
 
       - name: Update frontend
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
