@@ -27,15 +27,14 @@ jobs:
 
       - name: Update infrastructure
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
-        run: echo "Updating infrastructure"
-        run: pwd
+        run: |
+          echo "Updating infrastructure"
+          pwd
 
       - name: Update frontend
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
         run: echo "Updating frontend"
-        run: pwd
         
       - name: Update backend
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
         run: echo "Updating backend"
-        run: pwd
