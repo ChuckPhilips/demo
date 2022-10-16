@@ -1,1 +1,0 @@
-ja sam main
