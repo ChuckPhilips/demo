@@ -52,8 +52,9 @@ jobs:
             images=$(aws ecr describe-images --repository-name "${AWS_ECR_REPOSITORY}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
             tag=$(echo "$images" | jq '.imageDetails[].imageTags[]' | tr -d '"' | grep -v "$FILTER_TAG" | head -n1)
 
-            if [[ $(echo $tag | wc -l) -eq 0 ]]
+            if [[ $(echo $tag | wc -l) -gt 0 ]]
             then
+              echo "Image already exists, going to Terraform!!!"
               echo "buildImage=false" >> $GITHUB_ENV
               echo "TF_VAR_image_tag=${tag}" >> $GITHUB_ENV
             else
