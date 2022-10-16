@@ -55,21 +55,19 @@ jobs:
             if [[ $(echo $tag | wc -l) -gt 0 ]]
             then
               echo "Image already exists, going to Terraform!!!"
-              echo "buildImage=false" >> $GITHUB_ENV
-              echo "TF_VAR_image_tag=${tag}" >> $GITHUB_ENV
+              echo "buildImage=false" >> "$GITHUB_ENV"
+              echo "TF_VAR_image_tag=${tag}" >> "$GITHUB_ENV"
             else
               echo "Latest tag does not exits, something wrong, exiting..."
               exit 1
             fi
           else
               echo "There are no images, will build one!!!"
-              echo "buildImage=true" >> $GITHUB_ENV
+              echo "buildImage=true" >> "$GITHUB_ENV"
           fi
 
-          echo env.buildImage
-
       - name: Building initial image...
-        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure') && env.buildImage == true
+        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure') && env.buildImage == 'true'
         uses: docker/build-push-action@v2
         with:
           context: "./backend/"
