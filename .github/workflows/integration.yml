@@ -66,8 +66,10 @@ jobs:
               echo "buildImage=true" >> $GITHUB_ENV
           fi
 
+          echo env.buildImage
+
       - name: Building initial image...
-        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure') && env.buildImage == true
+        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure') && env.buildImage == "true"
         uses: docker/build-push-action@v2
         with:
           context: "./backend/"
