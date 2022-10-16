@@ -45,13 +45,14 @@ jobs:
           if [[ ${IMAGES_EXIST} -gt 0 ]]; then
             echo "Images exist!"
             echo "buildImage=false" >> $GITHUB_ENV
-            echo "latestTag"=$(aws ecr describe-images --repository-name ecr-simplehttp --image-ids imageTag=latest --region us-east-2 | jq '.imageDetails[].imageTags[]' | tr -d '"' | fgrep -v "latest" | head -n1) >> $GITHUB_ENV
+            latestTag=$(aws ecr describe-images --repository-name ecr-simplehttp --image-ids imageTag=latest --region us-east-2 | jq '.imageDetails[].imageTags[]' | tr -d '"' | fgrep -v "latest" | head -n1)
+            echo "LATEST_TAG=${latestTag}" >> $GITHUB_ENV
           else
             echo "There are no images!!"
             echo "buildImage=true" >> $GITHUB_ENV
           fi
 
-          echo $latestTag
+          echo $LATEST_TAG
 
       - name: Building initial image...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure') && env.buildImage == true
