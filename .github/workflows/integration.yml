@@ -42,7 +42,7 @@ jobs:
 
           latestTag=null
 
-          if [[ ${IMAGE_EXISTS} -eq 1 ]]; then
+          if [[ ${IMAGE_EXISTS} -gt 0 ]]; then
             echo "Images exist!"
             echo "buildImage=false" >> $GITHUB_ENV
             echo "latestTag"=$(aws ecr describe-images --repository-name ecr-simplehttp --image-ids imageTag=latest --region us-east-2 | jq '.imageDetails[].imageTags[]' | tr -d '"' | fgrep -v "latest" | head -n1) >> $GITHUB_ENV
