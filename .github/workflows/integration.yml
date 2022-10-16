@@ -68,6 +68,7 @@ jobs:
               echo "Image already exists, going to Terraform!!!"
               echo "buildImage=false" >> "$GITHUB_ENV"
               echo "TF_VAR_image_tag=${tag}" >> "$GITHUB_ENV"
+              echo "Tag is: $tag"
             else
               echo "Latest tag does not exits, something wrong, exiting..."
               exit 1
