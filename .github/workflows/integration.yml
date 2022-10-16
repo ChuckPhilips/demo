@@ -36,15 +36,22 @@ jobs:
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
         run: |
           echo "Updating infrastructure !!!"
-          IMAGE_EXISTS=$(aws ecr list-images --repository-name ecr-simplehttp --filter tagStatus=TAGGED --region us-east-2 | jq '.imageIds[].imageTag' | grep -v null | tr -d '"' | grep -c latest)
+          #IMAGE_EXISTS=$(aws ecr list-images --repository-name ecr-simplehttp --filter tagStatus=TAGGED --region us-east-2 | jq '.imageIds[].imageTag' | grep -v null | tr -d '"' | grep -c latest)
+          #IMAGE_EXISTS=$(aws ecr describe-images --repository-name ecr-simplehttp --image-ids imageTag=latest --region us-east-2 | jq '.imageDetails[].imageTags[]' | tr -d '"' | fgrep -v "latest" | head -n1)
+          IMAGES_EXIST=$(aws ecr list-images --repository-name ecr-simplehttp --region us-east-2 | jq '.imageIds | length')
+
+          latestTag=null
 
           if [[ ${IMAGE_EXISTS} -eq 1 ]]; then
-            echo "Image exists!"
+            echo "Images exist!"
             echo "buildImage=false" >> $GITHUB_ENV
+            echo "latestTag"=$(aws ecr describe-images --repository-name ecr-simplehttp --image-ids imageTag=latest --region us-east-2 | jq '.imageDetails[].imageTags[]' | tr -d '"' | fgrep -v "latest" | head -n1) >> $GITHUB_ENV
           else
-            echo "Image does not exist!"
+            echo "There are no images!!"
             echo "buildImage=true" >> $GITHUB_ENV
           fi
+
+          echo $latestTag
 
       - name: Building initial image...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure') && env.buildImage == true
