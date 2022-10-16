@@ -95,7 +95,7 @@ jobs:
 
       - name: Run Terraform
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
-        working_directory: ./infrastructure/environments/dev/
+        working-directory: "./infrastructure/environments/dev/"
         run: |
           echo "terraform init"
 
