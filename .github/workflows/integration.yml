@@ -53,7 +53,7 @@ jobs:
         run: |
           echo "Updating infrastructure !!!"
           echo "Getting images count..."
-          IMAGES=$(aws ecr describe-images --repository-name "${AWS_ECR_REPOSITORY}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}" 2> /dev/null
+          IMAGES=$(aws ecr describe-images --repository-name "${AWS_ECR_REPOSITORY}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}" 2> /dev/null)
 
           if [[ "$?" -eq 254 ]];
           then
