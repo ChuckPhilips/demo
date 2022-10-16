@@ -78,6 +78,7 @@ jobs:
           else
               echo "There are no images, will build one..."
               echo "buildImage=true" >> "$GITHUB_ENV"
+              echo "TF_VAR_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
           fi
 
       - name: Building initial image...
