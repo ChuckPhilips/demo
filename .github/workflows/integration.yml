@@ -61,7 +61,7 @@ jobs:
           then
 
             images=$(aws ecr describe-images --repository-name "${AWS_ECR_REPOSITORY}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
-            tag=$(echo "$images" | jq '.imageDetails[].imageTags[]' | tr -d '"' | grep -v "$FILTER_TAG" | head -n1)
+            tag=$(echo "$images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"')
 
             if [[ $(echo $tag | wc -l) -gt 0 ]]
             then
