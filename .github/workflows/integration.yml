@@ -44,26 +44,24 @@ jobs:
           #IMAGE_EXISTS=$(aws ecr list-images --repository-name ecr-simplehttp --filter tagStatus=TAGGED --region us-east-2 | jq '.imageIds[].imageTag' | grep -v null | tr -d '"' | grep -c latest)
           #IMAGE_EXISTS=$(aws ecr describe-images --repository-name ecr-simplehttp --image-ids imageTag=latest --region us-east-2 | jq '.imageDetails[].imageTags[]' | tr -d '"' | fgrep -v "latest" | head -n1)
 
-          IMAGES_EXIST=$(aws ecr list-images --repository-name "${AWS_ECR_REPOSITORY}" --region "${AWS_REGION}" | jq '.imageIds | length')
+          IMAGES_COUNT=$(aws ecr list-images --repository-name "${AWS_ECR_REPOSITORY}" --region "${AWS_REGION}" | jq '.imageIds | length')
 
-          if [[ ${IMAGES_EXIST} -gt 0 ]]
+          if [[ ${IMAGES_COUNT} -gt 0 ]]
           then
-            echo "buildImage=false" >> $GITHUB_ENV
 
             images=$(aws ecr describe-images --repository-name "${AWS_ECR_REPOSITORY}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
             tag=$(echo "$images" | jq '.imageDetails[].imageTags[]' | tr -d '"' | grep -v "$FILTER_TAG" | head -n1)
 
-            if [[ $(echo $tag | wc -l) -gt 0 ]]
+            if [[ $(echo $tag | wc -l) -eq 0 ]]
             then
-              echo "Latest tag is: $tag"
+              echo "buildImage=false" >> $GITHUB_ENV
+              echo "TF_VAR_image_tag=${tag}" >> $GITHUB_ENV
             else
-              echo "Latest tag does not exits, exiting..."
+              echo "Latest tag does not exits, something wrong, exiting..."
               exit 1
             fi
-
-            echo "LATEST_TAG=${tag}" >> $GITHUB_ENV
-            else
-              echo "There are no images!!"
+          else
+              echo "There are no images, will build one!!!"
               echo "buildImage=true" >> $GITHUB_ENV
           fi
 
