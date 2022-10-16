@@ -52,23 +52,25 @@ jobs:
 
         run: |
           echo "Updating infrastructure !!!"
-          #IMAGE_EXISTS=$(aws ecr list-images --repository-name ecr-simplehttp --filter tagStatus=TAGGED --region us-east-2 | jq '.imageIds[].imageTag' | grep -v null | tr -d '"' | grep -c latest)
-          #IMAGE_EXISTS=$(aws ecr describe-images --repository-name ecr-simplehttp --image-ids imageTag=latest --region us-east-2 | jq '.imageDetails[].imageTags[]' | tr -d '"' | fgrep -v "latest" | head -n1)
-
+          echo "Getting images count:"
           IMAGES_COUNT=$(aws ecr list-images --repository-name "${AWS_ECR_REPOSITORY}" --region "${AWS_REGION}" | jq '.imageIds | length')
+          echo "Images count: ${IMAGES_COUNT}"
 
           if [[ ${IMAGES_COUNT} -gt 0 ]]
           then
-
+            echo "Some images already exist, getting them:"
             images=$(aws ecr describe-images --repository-name "${AWS_ECR_REPOSITORY}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
+            echo "Images are: ${images}"
+            echo "Getting tag from latest image:"
             tag=$(echo "$images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"')
+            echo "Image tag is: ${tag}"
 
             if [[ $(echo $tag | wc -l) -gt 0 ]]
             then
               echo "Image already exists, going to Terraform!!!"
               echo "buildImage=false" >> "$GITHUB_ENV"
               echo "TF_VAR_image_tag=${tag}" >> "$GITHUB_ENV"
-              echo "Tag is: $tag"
+              echo "Image tag is: $tag"
             else
               echo "Latest tag does not exits, something wrong, exiting..."
               exit 1
