@@ -36,7 +36,7 @@ jobs:
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
         env:
           AWS_REGION: "us-east-2"
-          AWS_ECR_REPOSITORY: "ecr-simplehttp"
+          AWS_ECR_REPOSITORY: "test"
           FILTER_TAG: "latest"
 
         run: |
