@@ -102,6 +102,6 @@ jobs:
           file: "./backend/Dockerfile"
           push: true
           tags: | 
-            ${{ AWS_ECR_REPOSITORY }}:latest
-            ${{ AWS_ECR_REPOSITORY }}:${{ github.ref_name }}
-            ${{ AWS_ECR_REPOSITORY }}:${{ steps.sha.outputs.short }}
+            ${{ env.AWS_ECR_REPOSITORY }}:latest
+            ${{ env.AWS_ECR_REPOSITORY }}:${{ github.ref_name }}
+            ${{ env.AWS_ECR_REPOSITORY }}:${{ steps.sha.outputs.short }}
