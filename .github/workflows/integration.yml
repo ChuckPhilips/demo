@@ -25,9 +25,9 @@ jobs:
             echo "$directory was changed"
           done
       
-      - name: Install aws cli
-        id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@master
+          #      - name: Install aws cli
+          #        id: install-aws-cli
+          #        uses: unfor19/install-aws-cli-action@master
 
       - name: Update infrastructure
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
@@ -37,7 +37,7 @@ jobs:
 
       - name: Check if image with latest tag exists
         run: |
-          exists=aws ecr list-images --repository-name ecr-simplehttp --filter tagStatus=TAGGED --region us-east-2 | jq '.imageIds[].imageTag' | grep -v null | tr -d '"' | grep -c latest
+          exists=$(aws ecr list-images --repository-name ecr-simplehttp --filter tagStatus=TAGGED --region us-east-2 | jq '.imageIds[].imageTag' | grep -v null | tr -d '"' | grep -c latest)
           if [[ $exists -eq 1 ]]; then
             echo "Image exists!"
           else
