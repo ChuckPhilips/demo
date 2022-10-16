@@ -53,7 +53,7 @@ jobs:
         run: |
           echo "Updating infrastructure !!!"
           echo "Getting images count:"
-          IMAGES_COUNT=$(aws ecr list-images --repository-name "${AWS_ECR_REPOSITORY}" --region "${AWS_REGION}" | jq '.imageDetails | length')
+          IMAGES_COUNT=$(aws ecr describe-images --repository-name "${AWS_ECR_REPOSITORY}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}" | jq '.imageDetails | length')
           echo "Images count: ${IMAGES_COUNT}"
 
           if [[ ${IMAGES_COUNT} -gt 0 ]]
