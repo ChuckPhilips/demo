@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [ "dev" ]
 
+env:
+  AWS_REGION: "us-east-2"
+  AWS_ECR_REPOSITORY: "test"
+
 jobs:
   build:
     runs-on: ubuntu-latest  # windows-latest | macos-latest
@@ -32,11 +36,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "us-east-2"
 
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Set short sha
+        id: sha
+        run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
+
       - name: Update infrastructure
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
         env:
-          AWS_REGION: "us-east-2"
-          AWS_ECR_REPOSITORY: "test"
           FILTER_TAG: "latest"
 
         run: |
@@ -90,4 +100,8 @@ jobs:
         with:
           context: "./backend/"
           file: "./backend/Dockerfile"
-          push: false
+          push: true
+          tags: | 
+            ${{ AWS_ECR_REPOSITORY }}:latest
+            ${{ AWS_ECR_REPOSITORY }}:${{ github.ref_name }}
+            ${{ AWS_ECR_REPOSITORY }}:${{ steps.sha.outputs.short }}
