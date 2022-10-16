@@ -7,6 +7,7 @@ on:
 env:
   AWS_REGION: "us-east-2"
   AWS_ECR_REPOSITORY: "test"
+  AWS_ECR_REPO_URL: "454624638483.dkr.ecr.us-east-2.amazonaws.com/test"
 
 jobs:
   build:
@@ -102,6 +103,6 @@ jobs:
           file: "./backend/Dockerfile"
           push: true
           tags: | 
-            ${{ env.AWS_ECR_REPOSITORY }}:latest
-            ${{ env.AWS_ECR_REPOSITORY }}:${{ github.ref_name }}
-            ${{ env.AWS_ECR_REPOSITORY }}:${{ steps.sha.outputs.short }}
+            ${{ env.AWS_ECR_REPO_URL }}:latest
+            ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
+            ${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
