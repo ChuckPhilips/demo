@@ -63,7 +63,7 @@ jobs:
             images=$(aws ecr describe-images --repository-name "${AWS_ECR_REPOSITORY}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
             echo "Images are: ${images}"
             echo "Getting tag from latest image..."
-            tag=$(echo "$images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"')
+            tag=$(echo "$images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"' | tail -n1)
             echo "Image tag is: ${tag}"
 
             if [[ $(echo $tag | wc -l) -gt 0 ]]
