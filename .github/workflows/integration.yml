@@ -108,10 +108,7 @@ jobs:
           context: "./backend/"
           file: "./backend/Dockerfile"
           push: true
-          tags: | 
-            ${{ env.AWS_ECR_REPO_URL }}:latest
-            ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
-            ${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
+          tags: ${{ env.AWS_ECR_REPO_URL }}:latest,${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }},${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
 
       - name: Update backend...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
