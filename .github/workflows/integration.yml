@@ -103,7 +103,10 @@ jobs:
 
       - name: Update backend...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
-        run: echo "Updating backend"
+        run: |
+          echo "Updating backend"
+          terraform init
+          terraform apply -auto-approve -target module.ecs.aws_ecs_task_definition.api
       
       - name: Build image...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')

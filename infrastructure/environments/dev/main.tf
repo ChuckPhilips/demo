@@ -14,6 +14,8 @@ variable "environment" {
   default     = "dev"
 }
 
+variable "image_tag" {}
+
 terraform {
   backend "s3" {
     bucket         = "fcuic-infrastructure-lock"
@@ -52,6 +54,7 @@ variable "global_tags" {
 
 locals {
   postfix = "${var.environment}-${data.aws_caller_identity.current.account_id}"
+  container_image = "454624638483.dkr.ecr.us-east-2.amazonaws.com/test:${var.image_tag}"
   tags = merge(var.global_tags,
     {
       Environment = var.environment
@@ -65,4 +68,10 @@ module "vpc" {
     postfix_in    = "dev"
 }
 
-
+module "ecs" {
+    source = "../../modules/ecs"
+    postfix_in = "dev"
+    container_image_in = local.container_image
+    vpc_id_in = module.vpc.id
+    subnets_in = module.vpc.private_subnets_ids
+}
