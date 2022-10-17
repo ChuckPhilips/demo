@@ -38,6 +38,12 @@ provider "aws" {
   }
 }
 
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+data "aws_availability_zones" "available" {}
+data "aws_elb_service_account" "current" {}
+
+
 locals {
   postfix = "${var.environment}-${data.aws_caller_identity.current.account_id}"
   tags = merge(var.global_tags,
