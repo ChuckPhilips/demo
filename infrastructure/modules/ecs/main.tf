@@ -93,3 +93,5 @@ resource "aws_ecs_service" "api" {
 
   #depends_on = [aws_lb_listener.api_https]
 }
+
+
