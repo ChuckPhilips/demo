@@ -32,7 +32,6 @@ terraform {
 
 provider "aws" {
   region  = var.region
-  profile = "ecs-course"
   default_tags {
     tags = local.tags
   }
