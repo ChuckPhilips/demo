@@ -67,14 +67,14 @@ resource "aws_security_group" "ecs_service" {
     from_port       = "80"
     to_port         = "80"
     protocol        = "tcp"
-    #security_groups = var.security_groups_in
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_ecs_service" "api" {
   name                   = "api-${var.postfix_in}"
   cluster                = aws_ecs_cluster.main.name
-  task_definition        = aws_ecs_task_definition.api.family
+  task_definition        = aws_ecs_task_definition.api.arn
   desired_count          = 1
   launch_type            = "FARGATE"
   platform_version       = "1.4.0"
