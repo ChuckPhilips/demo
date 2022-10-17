@@ -99,6 +99,7 @@ jobs:
         run: |
           terraform init
           terraform plan
+          terraform apply -auto-approve
 
       - name: Update backend...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
