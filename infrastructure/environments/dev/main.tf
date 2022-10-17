@@ -43,6 +43,13 @@ data "aws_caller_identity" "current" {}
 data "aws_availability_zones" "available" {}
 data "aws_elb_service_account" "current" {}
 
+variable "global_tags" {
+  type = map(any)
+  default = {
+    "Maintainer" = "Filip"
+  }
+}
+
 
 locals {
   postfix = "${var.environment}-${data.aws_caller_identity.current.account_id}"
