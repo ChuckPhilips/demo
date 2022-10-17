@@ -116,9 +116,10 @@ jobs:
       - name: Update backend...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
         working-directory: "./infrastructure/environments/dev/"
+        env:
+          TF_VAR_image_tag: ${{ steps.sha.outputs.short }}
         run: |
           echo "Updating backend"
-          echo "TF_VAR_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
           terraform init
           terraform apply -auto-approve -target module.ecs.aws_ecs_task_definition.api
       
