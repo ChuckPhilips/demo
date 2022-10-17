@@ -97,7 +97,7 @@ jobs:
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
         working-directory: "./infrastructure/environments/dev/"
         run: |
-          echo "terraform init"
+          terraform init
 
       - name: Update backend...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
