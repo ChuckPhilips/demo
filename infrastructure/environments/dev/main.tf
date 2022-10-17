@@ -38,6 +38,15 @@ provider "aws" {
   }
 }
 
+locals {
+  postfix = "${var.environment}-${data.aws_caller_identity.current.account_id}"
+  tags = merge(var.global_tags,
+    {
+      Environment = var.environment
+    }
+  )
+}
+
 module "vpc" {
     source        = "../../modules/vpc"
     cidr_block_in = var.cidr_block
