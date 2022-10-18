@@ -8,26 +8,26 @@ resource "aws_security_group" "lb" {
   name        = "lb-${var.postfix_in}"
   vpc_id      = var.vpc_id_in
 
-    ingress {
-        protocol    = "tcp"
-        from_port   = 80
-        to_port     = 80
-        cidr_blocks = ["0.0.0.0/0"]
-    }
+  ingress {
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-    ingress {
-        protocol    = "tcp"
-        from_port   = 443
-        to_port     = 443
-        cidr_blocks = ["0.0.0.0/0"]
-    }
+  ingress {
+    protocol    = "tcp"
+    from_port   = 443
+    to_port     = 443
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-    egress {
-      protocol    = "tcp"
-      from_port   = var.nodejs_port_in
-      to_port     = var.nodejs_port_in
-      cidr_blocks = ["0.0.0.0/0"]
-    }
+  egress {
+    protocol    = "tcp"
+    from_port   = var.nodejs_port_in
+    to_port     = var.nodejs_port_in
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_lb" "api" {
@@ -41,7 +41,7 @@ resource "aws_lb" "api" {
 }
 
 resource "aws_lb_target_group" "api" {
-  name_prefix          = "${var.postfix_in}"
+  name_prefix          = var.postfix_in
   protocol             = "HTTP"
   vpc_id               = var.vpc_id_in
   target_type          = "ip"
@@ -50,7 +50,7 @@ resource "aws_lb_target_group" "api" {
 
   health_check {
     path                = "/"
-    port    = var.nodejs_port_in
+    port                = var.nodejs_port_in
     interval            = 60
     healthy_threshold   = 2
     unhealthy_threshold = 2
@@ -91,5 +91,5 @@ resource "aws_alb_listener" "main" {
 }
 
 output "target_group_arn" {
-    value = aws_lb_target_group.api.id
+  value = aws_lb_target_group.api.id
 }
