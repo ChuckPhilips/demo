@@ -14,7 +14,7 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   availability_zone       = "${data.aws_region.current.name}${identifier_in}"
 
-  tags = tomap({ Name = "subnet-public-${identifier_in}-${var.postfix_in}" })
+  tags = tomap({ Name = "subnet-public-${var.identifier_in}-${var.postfix_in}" })
 }
 
 resource "aws_route_table" "public" {
