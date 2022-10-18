@@ -66,26 +66,26 @@ locals {
   )
 }
 
-module "vpc" {
-  source        = "../../modules/vpc"
-  cidr_block_in = var.cidr_block
-  postfix_in    = "dev"
-}
+# module "vpc" {
+#   source        = "../../modules/vpc"
+#   cidr_block_in = var.cidr_block
+#   postfix_in    = "dev"
+# }
 
-module "ecs" {
-  source              = "../../modules/ecs"
-  postfix_in          = "dev"
-  container_image_in  = local.container_image
-  vpc_id_in           = module.vpc.id
-  subnets_in          = module.vpc.private_subnets_ids
-  target_group_arn_in = module.loadbalancer.target_group_arn
-  nodejs_port_in      = var.nodejs_port
-}
+# module "ecs" {
+#   source              = "../../modules/ecs"
+#   postfix_in          = "dev"
+#   container_image_in  = local.container_image
+#   vpc_id_in           = module.vpc.id
+#   subnets_in          = module.vpc.private_subnets_ids
+#   target_group_arn_in = module.loadbalancer.target_group_arn
+#   nodejs_port_in      = var.nodejs_port
+# }
 
-module "loadbalancer" {
-  source         = "../../modules/loadbalancer"
-  vpc_id_in      = module.vpc.id
-  postfix_in     = "dev"
-  subnets_in     = module.vpc.public_subnets_ids
-  nodejs_port_in = var.nodejs_port
-}
+# module "loadbalancer" {
+#   source         = "../../modules/loadbalancer"
+#   vpc_id_in      = module.vpc.id
+#   postfix_in     = "dev"
+#   subnets_in     = module.vpc.public_subnets_ids
+#   nodejs_port_in = var.nodejs_port
+# }
