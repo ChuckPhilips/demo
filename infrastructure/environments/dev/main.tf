@@ -79,7 +79,7 @@ module "vpc" {
 # }
 
 module "loadbalancer" {
-  source          = "../../loadbalancer"
+  source          = "../../modules/loadbalancer"
   vpc_id_in       = module.vpc.id
   postfix_in      = "dev"
   subnets_in      = module.vpc.public_subnets_ids
