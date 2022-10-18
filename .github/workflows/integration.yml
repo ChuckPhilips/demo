@@ -130,7 +130,6 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-        if: env.buildImage == 'true'
 
       - name: Build image for backend...
         uses: docker/build-push-action@v2
