@@ -25,6 +25,12 @@ jobs:
         with:
           dir_names: "true"
 
+      - name: List all changed directories
+        run: |
+          for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
+            echo "$directory was changed"
+          done
+
       - name: Set short sha
         id: sha
         run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
