@@ -3,7 +3,7 @@ variable "container_image_in" {}
 variable "vpc_id_in" {}
 variable "subnets_in" {}
 variable "target_group_arn_in" {}
-variable "container_port_in" {}
+variable "nodejs_port_in" {}
 
 data "aws_region" "current" {}
 
@@ -35,7 +35,7 @@ data "template_file" "api_container_definitions" {
     musicbox_container_name        = "nginx"
     musicbox_container_image       = var.container_image_in
     musicbox_container_memory      = "256"
-    musicbox_container_port        = var.container_port_in
+    musicbox_container_port        = var.nodejs_port_in
     musicbox_log_group_name        = aws_cloudwatch_log_group.ecs_task_logs.name
     musicbox_log_group_region      = data.aws_region.current.name
     musicbox_awslogs_stream_prefix = "nginx"
@@ -90,7 +90,7 @@ resource "aws_ecs_service" "api" {
     load_balancer {
       target_group_arn = var.target_group_arn_in
       container_name   = "nginx"
-      container_port   = var.container_port_in
+      container_port   = var.nodejs_port_in
     }
 
   #depends_on = [aws_lb_listener.api_https]

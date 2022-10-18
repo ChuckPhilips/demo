@@ -14,7 +14,7 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "backend_port" {
+variable "nodejs_port" {
   default = 8080
 }
 
@@ -79,7 +79,7 @@ module "ecs" {
    vpc_id_in = module.vpc.id
    subnets_in = module.vpc.private_subnets_ids
    target_group_arn_in = module.loadbalancer.target_group_arn
-   container_port_in = var.backend_port
+   container_port_in = var.nodejs_port
 }
 
 module "loadbalancer" {
@@ -87,5 +87,5 @@ module "loadbalancer" {
   vpc_id_in       = module.vpc.id
   postfix_in      = "dev"
   subnets_in      = module.vpc.public_subnets_ids
-  backend_port_in = var.backend_port
+  nodejs_port_in = var.nodejs_port
 }
