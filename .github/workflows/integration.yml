@@ -38,6 +38,12 @@ jobs:
           aws-region: "us-east-2"
 
       - name: Login to Amazon ECR
+        if: |
+          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
+          ||
+          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
+          ||
+          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
