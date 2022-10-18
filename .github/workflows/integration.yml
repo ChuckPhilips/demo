@@ -193,7 +193,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: "${{ FRONTEND_DIRECTORY }}"
+        working-directory: ${{ FRONTEND_DIRECTORY }}
       
       - name: Test
         run: npm test
