@@ -14,6 +14,8 @@ variable "environment" {
   default     = "dev"
 }
 
+variable "backend_port" {}
+
 variable "image_tag" {}
 
 terraform {
@@ -62,11 +64,11 @@ locals {
   )
 }
 
-# module "vpc" {
-#   source        = "../../modules/vpc"
-#   cidr_block_in = var.cidr_block
-#   postfix_in    = "dev"
-# }
+module "vpc" {
+  source        = "../../modules/vpc"
+  cidr_block_in = var.cidr_block
+  postfix_in    = "dev"
+}
 
 # module "ecs" {
 #    source = "../../modules/ecs"
@@ -75,3 +77,11 @@ locals {
 #    vpc_id_in = module.vpc.id
 #    subnets_in = module.vpc.private_subnets_ids
 # }
+
+module "loadbalancer" {
+  source          = "./loadbalancer"
+  vpc_id_in       = module.vpc.id
+  postfix_in      = "dev"
+  subnets_in      = module.vpc.public_subnets_ids
+  backend_port_in = var.backend_port
+}
