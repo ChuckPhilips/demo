@@ -31,7 +31,7 @@ resource "aws_security_group" "lb" {
 }
 
 resource "aws_lb" "api" {
-  name                       = "main-"
+  name                       = "${var.postfix_in}"
   load_balancer_type         = "application"
   drop_invalid_header_fields = true
   enable_deletion_protection = true
