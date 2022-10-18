@@ -178,7 +178,7 @@ jobs:
       contains(needs.changes.outputs.changed_directories, 'frontend')
     runs-on: ubuntu-latest
     env:
-      FRONTEND_DIRECTORY: 'frontend'
+      FRONTEND_DIRECTORY: "frontend"
     steps:
 
       - name: Download repository
@@ -193,7 +193,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: "$FRONTEND_DIRECTORY"
+        working-directory: "${{ FRONTEND_DIRECTORY }}"
       
       - name: Test
         run: npm test
