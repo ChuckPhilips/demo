@@ -22,12 +22,12 @@ resource "aws_security_group" "lb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  #   egress {
-  #     protocol    = "tcp"
-  #     from_port   = var.api_container_port_in
-  #     to_port     = var.api_container_port_in
-  #     cidr_blocks = ["0.0.0.0/0"]
-  #   }
+    egress {
+      protocol    = "tcp"
+      from_port   = 8080
+      to_port     = 8080
+      cidr_blocks = ["0.0.0.0/0"]
+    }
 }
 
 resource "aws_lb" "api" {
