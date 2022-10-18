@@ -42,7 +42,10 @@ jobs:
   infrastructure:
     needs: changes
     runs-on: ubuntu-latest
-    if: contains(needs.changes.outputs.changed_directories, 'infrastructure')
+    if: |
+      always() &&
+      needs.changes.result == 'success' &&
+      contains(needs.changes.outputs.changed_directories, 'infrastructure')
     steps:
       - name: Download repository
         uses: actions/checkout@v3
@@ -116,10 +119,12 @@ jobs:
           terraform apply -auto-approve
 
   backend:
-    if: |
-      contains(needs.changes.outputs.changed_directories, 'backend') &&
-      (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped')
     needs: [changes, infrastructure]
+    if: |
+      always() &&
+      needs.changes.result == 'success' &&
+      (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
+      contains(needs.changes.outputs.changed_directories, 'backend')
     runs-on: ubuntu-latest
     steps:
 
@@ -160,11 +165,13 @@ jobs:
           terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
 
   frontend:
+    needs: [changes, infrastructure, backend]
     if: |
-      contains(needs.changes.outputs.changed_directories, 'backend') &&
+      always() &&
+      needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
-      (needs.backend.result == 'success' || needs.backend.result == 'skipped')
-    needs: [changes, infrastructure,backend]
+      (needs.backend.result == 'success' || needs.backend.result == 'skipped') &&
+      contains(needs.changes.outputs.changed_directories, 'frontend')
     runs-on: ubuntu-latest
     steps:
 
