@@ -35,7 +35,7 @@ data "template_file" "api_container_definitions" {
     musicbox_container_name        = "nginx"
     musicbox_container_image       = var.container_image_in
     musicbox_container_memory      = "256"
-    musicbox_container_port        = "80"
+    musicbox_container_port        = "8080"
     musicbox_log_group_name        = aws_cloudwatch_log_group.ecs_task_logs.name
     musicbox_log_group_region      = data.aws_region.current.name
     musicbox_awslogs_stream_prefix = "nginx"
