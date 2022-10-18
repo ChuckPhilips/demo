@@ -11,11 +11,11 @@ output "id" {
 }
 
 output "public_a_id" {
-  value = module.public_a.private_subnet_id
+  value = module.public_a.public_subnet_id
 }
 
 output "public_b_id" {
-  value = module.public_b.private_subnet_id
+  value = module.public_b.public_subnet_id
 }
 
 output "private_a_cidr_block" {
@@ -35,7 +35,7 @@ output "private_subnets_ids" {
 }
 
 output "public_subnets_cidrs" {
-  value = [module.public_a.private_subnet_cidr_block, module.public_b.private_subnet_cidr_block]
+  value = [module.public_a.public_subnet_cidr_block, module.public_b.public_subnet_cidr_block]
 }
 
 output "private_subnets_cidrs" {

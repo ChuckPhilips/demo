@@ -51,6 +51,14 @@ output "public_subnet_id" {
   value = aws_subnet.public.id
 }
 
+output "public_subnet_cidr_block" {
+  value = aws_subnet.public.cidr_block
+}
+
+output "availability_zone" {
+  value = "${data.aws_region.current.name}${identifier_in}"
+}
+
 output "nat_gateway_id" {
   value = aws_nat_gateway.public.id
 }
