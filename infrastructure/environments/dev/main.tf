@@ -14,7 +14,9 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "backend_port" {}
+variable "backend_port" {
+  default = 8080
+}
 
 variable "image_tag" {}
 
