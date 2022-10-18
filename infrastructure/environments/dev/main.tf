@@ -62,11 +62,11 @@ locals {
   )
 }
 
-# module "vpc" {
-#     source        = "../../modules/vpc"
-#     cidr_block_in = var.cidr_block
-#     postfix_in    = "dev"
-# }
+module "vpc" {
+    source        = "../../modules/vpc"
+    cidr_block_in = var.cidr_block
+    postfix_in    = "dev"
+}
 
 # module "ecs" {
 #     source = "../../modules/ecs"
