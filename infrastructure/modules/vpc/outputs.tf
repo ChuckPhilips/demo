@@ -31,7 +31,7 @@ output "public_subnets_ids" {
 }
 
 output "private_subnets_ids" {
-  value = [module.public_a.private_subnet_id, module.public_b.private_subnet_id]
+  value = [module.private_a.private_subnet_id, module.private_b.private_subnet_id]
 }
 
 output "public_subnets_cidrs" {

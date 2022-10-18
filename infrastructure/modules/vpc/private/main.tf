@@ -4,6 +4,9 @@ variable "identifier_in" {}
 variable "postfix_in" {}
 variable "nat_gateway_id_in" {}
 
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
 resource "aws_subnet" "private" {
   cidr_block        = var.subnet_in
   vpc_id            = var.vpc_id_in
