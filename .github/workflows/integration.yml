@@ -115,18 +115,22 @@ jobs:
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
         working-directory: "./infrastructure/environments/dev/"
         run: |
+          echo "Running Terraform..."
           terraform init
           terraform plan
           terraform apply -auto-approve
 
-      - name: Build image...
+      - name: Build image for backend...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
         uses: docker/build-push-action@v2
         with:
           context: "./backend/"
           file: "./backend/Dockerfile"
           push: true
-          tags: ${{ env.AWS_ECR_REPO_URL }}:latest,${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }},${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
+          tags: |
+            ${{ env.AWS_ECR_REPO_URL }}:latest
+            ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
+            ${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
 
       - name: Update backend...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
@@ -134,11 +138,9 @@ jobs:
         env:
           TF_VAR_image_tag: ${{ steps.sha.outputs.short }}
         run: |
-          echo "Updating backend"
+          echo "Updating backend image..."
           terraform init
           terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
-      
-
 
       - name: Update frontend...
         if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
