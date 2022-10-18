@@ -2,6 +2,7 @@ variable "vpc_id_in" {}
 variable "subnet_in" {}
 variable "identifier_in" {}
 variable "postfix_in" {}
+variable "internet_gateway_id_in" {}
 
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
@@ -30,7 +31,7 @@ resource "aws_route_table_association" "public" {
 resource "aws_route" "public_internet_access" {
   route_table_id         = aws_route_table.public.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.main.id
+  gateway_id             = var.internet_gateway_id_in
 }
 
 resource "aws_eip" "public" {

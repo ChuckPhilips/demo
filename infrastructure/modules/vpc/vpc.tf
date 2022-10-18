@@ -25,21 +25,21 @@ resource "aws_internet_gateway" "main" {
 }
 
 module "public_a" {
-  source                     = "./public"
-  vpc_id_in                  = aws_vpc.main.id
-  subnet_in                  = cidrsubnet(var.cidr_block_in, 8, 2)
-  identifier_in              = "a"
-  postfix_in                 = var.postfix_in
-  aws_internet_gateway_id_in = aws_internet_gateway.main.id
+  source                 = "./public"
+  vpc_id_in              = aws_vpc.main.id
+  subnet_in              = cidrsubnet(var.cidr_block_in, 8, 2)
+  identifier_in          = "a"
+  postfix_in             = var.postfix_in
+  internet_gateway_id_in = aws_internet_gateway.main.id
 }
 
 module "public_b" {
-  source                     = "./public"
-  vpc_id_in                  = aws_vpc.main.id
-  subnet_in                  = cidrsubnet(var.cidr_block_in, 8, 4)
-  identifier_in              = "b"
-  postfix_in                 = var.postfix_in
-  aws_internet_gateway_id_in = aws_internet_gateway.main.id
+  source                 = "./public"
+  vpc_id_in              = aws_vpc.main.id
+  subnet_in              = cidrsubnet(var.cidr_block_in, 8, 4)
+  identifier_in          = "b"
+  postfix_in             = var.postfix_in
+  internet_gateway_id_in = aws_internet_gateway.main.id
 }
 
 module "private_a" {
