@@ -50,6 +50,7 @@ resource "aws_lb_target_group" "api" {
 
   health_check {
     path                = "/"
+    port    = 8080
     interval            = 60
     healthy_threshold   = 2
     unhealthy_threshold = 2
