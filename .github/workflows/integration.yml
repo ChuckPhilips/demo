@@ -190,15 +190,18 @@ jobs:
           node-version: 16.x
 
       - name: Install dependencies
-        run: npm install    
+        run: npm install
+        working-directory: frontend
       
       - name: Test
         run: npm test
         env:
           CI: true
+        working-directory: frontend
       
       - name: Generate build
         run: npm run build
+        working-directory: frontend
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
