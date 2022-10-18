@@ -38,5 +38,5 @@ output "private_subnet_cidr_block" {
 }
 
 output "availability_zone" {
-  value = "${data.aws_region.current.name}${identifier_in}"
+  value = "${data.aws_region.current.name}${var.identifier_in}"
 }
