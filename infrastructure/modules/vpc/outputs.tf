@@ -1,9 +1,9 @@
 output "private_a_id" {
-  value = aws_subnet.private_a.id
+  value = module.private_a.private_subnet_id
 }
 
 output "private_b_id" {
-  value = aws_subnet.private_b.id
+  value = module.private_b.private_subnet_id
 }
 
 output "id" {
@@ -11,37 +11,37 @@ output "id" {
 }
 
 output "public_a_id" {
-  value = aws_subnet.public_a.id
+  value = module.public_a.private_subnet_id
 }
 
 output "public_b_id" {
-  value = aws_subnet.public_b.id
+  value = module.public_b.private_subnet_id
 }
 
 output "private_a_cidr_block" {
-  value = aws_subnet.private_a.cidr_block
+  value = module.private_a.private_subnet_cidr_block
 }
 
 output "private_b_cidr_block" {
-  value = aws_subnet.private_b.cidr_block
+  value = module.private_b.private_subnet_cidr_block
 }
 
 output "public_subnets_ids" {
-  value = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+  value = [module.public_a.public_subnet_id, module.public_b.public_subnet_id]
 }
 
 output "private_subnets_ids" {
-  value = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+  value = [module.public_a.private_subnet_id, module.public_b.private_subnet_id]
 }
 
 output "public_subnets_cidrs" {
-  value = [aws_subnet.public_a.cidr_block, aws_subnet.public_b.cidr_block]
+  value = [module.public_a.private_subnet_cidr_block, module.public_b.private_subnet_cidr_block]
 }
 
 output "private_subnets_cidrs" {
-  value = [aws_subnet.private_a.cidr_block, aws_subnet.private_b.cidr_block]
+  value = [module.private_a.private_subnet_cidr_block, module.private_b.private_subnet_cidr_block]
 }
 
 output "availability_zones" {
-  value = ["${data.aws_region.current.name}a", "${data.aws_region.current.name}b"]
+  value = [module.public_a.availability_zone, module.private_a.availability_zone]
 }

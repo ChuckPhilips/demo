@@ -33,7 +33,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = var.region
+  region = var.region
   default_tags {
     tags = local.tags
   }
@@ -53,7 +53,7 @@ variable "global_tags" {
 
 
 locals {
-  postfix = "${var.environment}-${data.aws_caller_identity.current.account_id}"
+  postfix         = "${var.environment}-${data.aws_caller_identity.current.account_id}"
   container_image = "454624638483.dkr.ecr.us-east-2.amazonaws.com/test:${var.image_tag}"
   tags = merge(var.global_tags,
     {
@@ -62,12 +62,12 @@ locals {
   )
 }
 
-#module "vpc" {
-#    source        = "../../modules/vpc"
-#    cidr_block_in = var.cidr_block
-#    postfix_in    = "dev"
-#}
-#
+module "vpc" {
+    source        = "../../modules/vpc"
+    cidr_block_in = var.cidr_block
+    postfix_in    = "dev"
+}
+
 #module "ecs" {
 #    source = "../../modules/ecs"
 #    postfix_in = "dev"

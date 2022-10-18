@@ -64,9 +64,9 @@ resource "aws_security_group" "ecs_service" {
   }
 
   ingress {
-    from_port       = "80"
-    to_port         = "80"
-    protocol        = "tcp"
+    from_port   = "80"
+    to_port     = "80"
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -85,11 +85,11 @@ resource "aws_ecs_service" "api" {
     security_groups = [aws_security_group.ecs_service.id]
   }
 
-#   load_balancer {
-#     target_group_arn = var.target_group_arn_in
-#     container_name   = "api"
-#     container_port   = var.api_container_port_in
-#   }
+  #   load_balancer {
+  #     target_group_arn = var.target_group_arn_in
+  #     container_name   = "api"
+  #     container_port   = var.api_container_port_in
+  #   }
 
   #depends_on = [aws_lb_listener.api_https]
 }
