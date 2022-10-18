@@ -62,25 +62,25 @@ resource "aws_lb_target_group" "api" {
 }
 
 ### need to remove to resolve elbv2-acm-certificate-required config rule
-resource "aws_lb_listener" "api" {
-  load_balancer_arn = aws_lb.api.arn
-  port              = 80
-  protocol          = "HTTP"
+# resource "aws_lb_listener" "api" {
+#   load_balancer_arn = aws_lb.api.arn
+#   port              = 80
+#   protocol          = "HTTP"
 
-  default_action {
-    type = "redirect"
+#   default_action {
+#     type = "redirect"
 
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
+#     redirect {
+#       port        = "443"
+#       protocol    = "HTTPS"
+#       status_code = "HTTP_301"
+#     }
+#   }
+# }
 
 resource "aws_alb_listener" "main" {
   load_balancer_arn = aws_lb.api.arn
-  port              = var.backend_port_in
+  port              = 80
   protocol          = "HTTP"
 
   default_action {
