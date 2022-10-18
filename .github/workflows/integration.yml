@@ -193,29 +193,29 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: "$FRONTEND_DIRECTORY"
+        working-directory: "frontend"
       
       - name: Test
         run: npm test
         env:
           CI: true
-        working-directory: "$FRONTEND_DIRECTORY"
+        working-directory: "frontend"
       
       - name: Generate build
         run: npm run build
-        working-directory: "$FRONTEND_DIRECTORY"
+        working-directory: "frontend"
 
       - name: "Check if index.html exists..."
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "./$FRONTEND_DIRECTORY/build/index.html"
+          files: "./frontend/build/index.html"
 
       - name: "Fail if files dont exit"
         if: steps.check_files.outputs.files_exists != 'true'
         run: |
           ls -alh ./build
-          echo "./$FRONTEND_DIRECTORY/build/index.html is missing!"
+          echo "./frontend/build/index.html is missing!"
           exit 1
 
       - name: Configure AWS credentials
@@ -226,8 +226,8 @@ jobs:
           aws-region: "us-east-2"
 
       - name: Deploy to S3
-        run: aws s3 sync "./$FRONTEND_DIRECTORY/build/" s3://react-github-actions --dry-run --exclude docker --delete
-        working-directory: "$FRONTEND_DIRECTORY"
+        run: aws s3 sync "./build/" s3://react-github-actions --dry-run --exclude docker --delete
+        working-directory: "frontend"
 
       #- name: Invalidate Cache
       #  uses: chetan/invalidate-cloudfront-action@v2
