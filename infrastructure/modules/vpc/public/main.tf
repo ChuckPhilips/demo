@@ -12,7 +12,7 @@ resource "aws_subnet" "public" {
   cidr_block              = var.subnet_in
   map_public_ip_on_launch = false
   vpc_id                  = aws_vpc.main.id
-  availability_zone       = "${data.aws_region.current.name}${identifier_in}"
+  availability_zone       = "${data.aws_region.current.name}${var.identifier_in}"
 
   tags = tomap({ Name = "subnet-public-${var.identifier_in}-${var.postfix_in}" })
 }
