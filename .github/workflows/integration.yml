@@ -9,7 +9,6 @@ env:
   FRONTEND_REPOSITORY_NAME: "frontend"
   BACKEND_REPOSITORY_NAME: "backend"
   ECR_REPOSITORY_URL: "454624638483.dkr.ecr.us-east-2.amazonaws.com"
-  FRONTEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.FRONTEND_REPOSITORY_NAME) }}
 
 jobs:
   changes:
@@ -234,6 +233,11 @@ jobs:
       - name: Deploy to S3
         run: aws s3 sync "./build/" s3://artifacts1910 --dryrun --exclude docker --delete
         working-directory: ${{ env.FRONTEND_DIRECTORY }}
+
+      - name: Test
+        run: echo ${{ env.FRONTEND_REPOSITORY_URL }}
+        env:
+          FRONTEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.FRONTEND_REPOSITORY_NAME) }}
 
       #- name: Invalidate Cache
       #  uses: chetan/invalidate-cloudfront-action@v2
