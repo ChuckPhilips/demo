@@ -10,33 +10,40 @@ env:
   AWS_ECR_REPO_URL: "454624638483.dkr.ecr.us-east-2.amazonaws.com/test"
 
 jobs:
-  build:
+  changes:
     runs-on: ubuntu-latest  # windows-latest | macos-latest
-    name: Test changed-files
     steps:
-      - uses: actions/checkout@v3
+
+      - name: Download repository
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
-      - name: Run changed-files with dir_names
+      - name: Check changed directories
         id: changed-files-dir-names
         uses: tj-actions/changed-files@v29.0.2
         with:
           dir_names: "true"
 
-      - name: List all changed directories
-        run: |
-          for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
-            echo "$directory was changed"
-          done
+      - name: Set short sha
+        id: sha
+        run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
+
+    outputs:
+      changed_directories: ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
+      short_sha: ${{ steps.sha.outputs.short }}
       
+  infrastructure:
+    needs: changes
+    runs-on: ubuntu-latest
+    if: contains(needs.changes.outputs.changed_directories, 'infrastructure')
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
       - name: Configure AWS credentials
-        if: |
-          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
-          ||
-          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
-          ||
-          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -44,32 +51,14 @@ jobs:
           aws-region: "us-east-2"
 
       - name: Login to Amazon ECR
-        if: |
-          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
-          ||
-          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
-          ||
-          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Set short sha
-        id: sha
-        if: |
-          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
-          ||
-          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
-          ||
-          contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
-        run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
-
       - name: Update infrastructure
-        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
         env:
           FILTER_TAG: "latest"
 
         run: |
-          echo "Updating infrastructure !!!"
           echo "Getting images ids..."
           IMAGES_IDS=$(aws ecr list-images --repository-name "${AWS_ECR_REPOSITORY}" --region "${AWS_REGION}" | jq '.imageIds | length')
 
@@ -100,7 +89,6 @@ jobs:
           fi
 
       - name: Building initial image...
-        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure') && env.buildImage == 'true'
         uses: docker/build-push-action@v2
         with:
           context: "./backend/"
@@ -112,7 +100,6 @@ jobs:
             ${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
 
       - name: Run Terraform
-        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infrastructure')
         working-directory: "./infrastructure/environments/dev/"
         run: |
           echo "Running Terraform..."
@@ -121,7 +108,6 @@ jobs:
           terraform apply -auto-approve
 
       - name: Build image for backend...
-        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
         uses: docker/build-push-action@v2
         with:
           context: "./backend/"
@@ -131,9 +117,18 @@ jobs:
             ${{ env.AWS_ECR_REPO_URL }}:latest
             ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
             ${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
+  backend:
+    if: contains(needs.changes.outputs.changed_directories, 'backend')
+    needs: [changes, infrastructure]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
       - name: Update backend...
-        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'backend')
         working-directory: "./infrastructure/environments/dev/"
         env:
           TF_VAR_image_tag: ${{ steps.sha.outputs.short }}
@@ -141,8 +136,18 @@ jobs:
           echo "Updating backend image..."
           terraform init
           terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
+          
+  frontend:
+    if: contains(needs.changes.outputs.changed_directories, 'frontend')
+    needs: [changes, infrastructure,backend]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
       - name: Update frontend...
-        if: contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'frontend')
         run: |
           echo "Updating frontend"
