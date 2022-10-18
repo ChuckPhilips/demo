@@ -226,8 +226,11 @@ jobs:
           aws-region: "us-east-2"
 
       - name: Deploy to S3
-        run: aws s3 sync "./build/" s3://react-github-actions --dry-run --exclude docker --delete
+        run: aws s3 sync "./build/" s3://react-github-actions --dryrun --exclude docker --delete
         working-directory: "frontend"
+
+      - name: Test env
+        run: echo ${{ env.FRONTEND_DIRECTORY }}
 
       #- name: Invalidate Cache
       #  uses: chetan/invalidate-cloudfront-action@v2
