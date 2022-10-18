@@ -136,9 +136,9 @@ jobs:
           echo "Updating backend image..."
           terraform init
           terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
-          
+
   frontend:
-    if: contains(needs.changes.outputs.changed_directories, 'frontend')
+    if: contains(needs.changes.outputs.changed_directories, 'frontend') && ${{ always() }}
     needs: [changes, infrastructure,backend]
     runs-on: ubuntu-latest
     steps:
