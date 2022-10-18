@@ -226,7 +226,7 @@ jobs:
           aws-region: "us-east-2"
 
       - name: Deploy to S3
-        run: aws s3 sync "./build/" s3://react-github-actions --dryrun --exclude docker --delete
+        run: aws s3 sync "./build/" s3://artifacts1910 --dryrun --exclude docker --delete
         working-directory: "frontend"
 
       - name: Test env
