@@ -36,3 +36,6 @@ terraform.rc
 
 # Custom
 *.zip
+
+#NodeJS
+node_modules
