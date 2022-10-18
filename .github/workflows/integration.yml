@@ -203,6 +203,19 @@ jobs:
         run: npm run build
         working-directory: frontend
 
+      - name: "Check if index.html exists..."
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "./build/index.html"
+
+      - name: "Fail if files dont exit"
+        if: steps.check_files.outputs.files_exists != 'true'
+        run: |
+          ls -alh ./build
+          echo "./build/index.html is missing!"
+          exit 1
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -211,5 +224,15 @@ jobs:
           aws-region: "us-east-2"
 
       - name: Deploy to S3
-        run: aws s3 sync . s3://react-github-actions --dry-run --exclude docker
+        run: aws s3 sync . s3://react-github-actions --dry-run --exclude docker --delete
         working-directory: frontend
+
+      #- name: Invalidate Cache
+      #  uses: chetan/invalidate-cloudfront-action@v2
+      #  env:
+      #    DISTRIBUTION: ${{ secrets.DEV_DISTRIBUTION }}
+      #    PATHS: "/*"
+      #    AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
+      #    AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+      #    AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+      #    DEBUG: "1"
