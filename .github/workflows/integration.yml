@@ -62,7 +62,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: "us-east-2"
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Update infrastructure
         env:
@@ -70,14 +70,14 @@ jobs:
 
         run: |
           echo "Getting images ids..."
-          IMAGES_IDS=$(aws ecr list-images --repository-name "${AWS_ECR_REPOSITORY}" --region "${AWS_REGION}" | jq '.imageIds | length')
+          IMAGES_IDS=$(aws ecr list-images --repository-name "${BACKEND_REPOSITORY_NAME}" --region "${AWS_REGION}" | jq '.imageIds | length')
 
           echo "Images ids: ${IMAGES_IDS}"
 
           if [[ ${IMAGES_IDS} -gt 0 ]]
           then
             echo "Some images already exist, getting them..."
-            images=$(aws ecr describe-images --repository-name "${AWS_ECR_REPOSITORY}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
+            images=$(aws ecr describe-images --repository-name "${BACKEND_REPOSITORY_NAME}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
             echo "Images are: ${images}"
             echo "Getting tag from latest image..."
             tag=$(echo "$images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"' | tail -n1)
@@ -110,9 +110,9 @@ jobs:
           file: "./backend/Dockerfile"
           push: true
           tags: | 
-            ${{ env.AWS_ECR_REPO_URL }}:latest
-            ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
-            ${{ env.AWS_ECR_REPO_URL }}:${{ needs.changes.outputs.short_sha }}
+            ${{ env.BACKEND_REPOSITORY_URL }}:latest
+            ${{ env.BACKEND_REPOSITORY_URL }}:${{ github.ref_name }}
+            ${{ env.BACKEND_REPOSITORY_URL }}:${{ needs.changes.outputs.short_sha }}
         if: env.buildImage == 'true'
 
       - name: Run Terraform
@@ -157,9 +157,9 @@ jobs:
           file: "./backend/Dockerfile"
           push: true
           tags: |
-            ${{ env.AWS_ECR_REPO_URL }}:latest
-            ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
-            ${{ env.AWS_ECR_REPO_URL }}:${{ needs.changes.outputs.short_sha }}
+            ${{ env.BACKEND_REPOSITORY_URL }}:latest
+            ${{ env.BACKEND_REPOSITORY_URL }}:${{ github.ref_name }}
+            ${{ env.BACKEND_REPOSITORY_URL }}:${{ needs.changes.outputs.short_sha }}
 
       - name: Update backend...
         working-directory: "./infrastructure/environments/dev/"
