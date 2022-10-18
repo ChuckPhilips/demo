@@ -116,7 +116,10 @@ jobs:
           terraform apply -auto-approve
 
   backend:
-    if: ${{ always() }} && contains(needs.changes.outputs.changed_directories, 'backend')
+    if: |
+      ${{ always() }} &&
+      contains(needs.changes.outputs.changed_directories, 'backend') &&
+      (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped')
     needs: [changes, infrastructure]
     runs-on: ubuntu-latest
     steps:
@@ -158,7 +161,11 @@ jobs:
           terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
 
   frontend:
-    if: ${{ always() }} && contains(needs.changes.outputs.changed_directories, 'frontend')
+    if: |
+      ${{ always() }} &&
+      contains(needs.changes.outputs.changed_directories, 'backend') &&
+      (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
+      (needs.backend.result == 'success' || needs.backend.result == 'skipped')
     needs: [changes, infrastructure,backend]
     runs-on: ubuntu-latest
     steps:
