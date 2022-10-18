@@ -62,6 +62,7 @@ resource "aws_lb_target_group" "api" {
 
 }
 
+
 ### need to remove to resolve elbv2-acm-certificate-required config rule
 # resource "aws_lb_listener" "api" {
 #   load_balancer_arn = aws_lb.api.arn
