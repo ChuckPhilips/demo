@@ -72,13 +72,15 @@ module "vpc" {
   postfix_in    = "dev"
 }
 
-# module "ecs" {
-#    source = "../../modules/ecs"
-#    postfix_in = "dev"
-#    container_image_in = local.container_image
-#    vpc_id_in = module.vpc.id
-#    subnets_in = module.vpc.private_subnets_ids
-# }
+module "ecs" {
+   source = "../../modules/ecs"
+   postfix_in = "dev"
+   container_image_in = local.container_image
+   vpc_id_in = module.vpc.id
+   subnets_in = module.vpc.private_subnets_ids
+   target_group_arn_in = module.load_balancer.target_group_arn
+   container_port_in = var.backend_port
+}
 
 module "loadbalancer" {
   source          = "../../modules/loadbalancer"

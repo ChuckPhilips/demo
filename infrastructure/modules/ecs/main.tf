@@ -2,6 +2,8 @@ variable "postfix_in" {}
 variable "container_image_in" {}
 variable "vpc_id_in" {}
 variable "subnets_in" {}
+variable "target_group_arn_in" {}
+variable "container_port_in" {}
 
 data "aws_region" "current" {}
 
@@ -85,11 +87,11 @@ resource "aws_ecs_service" "api" {
     security_groups = [aws_security_group.ecs_service.id]
   }
 
-  #   load_balancer {
-  #     target_group_arn = var.target_group_arn_in
-  #     container_name   = "api"
-  #     container_port   = var.api_container_port_in
-  #   }
+    load_balancer {
+      target_group_arn = var.target_group_arn_in
+      container_name   = "nginx"
+      container_port   = var.container_port_in
+    }
 
   #depends_on = [aws_lb_listener.api_https]
 }
