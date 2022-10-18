@@ -117,7 +117,6 @@ jobs:
 
   backend:
     if: |
-      ${{ always() }} &&
       contains(needs.changes.outputs.changed_directories, 'backend') &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped')
     needs: [changes, infrastructure]
@@ -162,7 +161,6 @@ jobs:
 
   frontend:
     if: |
-      ${{ always() }} &&
       contains(needs.changes.outputs.changed_directories, 'backend') &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
       (needs.backend.result == 'success' || needs.backend.result == 'skipped')
