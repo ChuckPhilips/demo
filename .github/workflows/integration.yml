@@ -36,7 +36,7 @@ jobs:
   infrastructure:
     needs: changes
     runs-on: ubuntu-latest
-    if: contains(needs.changes.outputs.changed_directories, 'infrastructure') && ${{ always() }}
+    if: contains(needs.changes.outputs.changed_directories, 'infrastructure')
     steps:
       - name: Download repository
         uses: actions/checkout@v3
@@ -98,7 +98,7 @@ jobs:
           tags: | 
             ${{ env.AWS_ECR_REPO_URL }}:latest
             ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
-            ${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
+            ${{ env.AWS_ECR_REPO_URL }}:${{ needs.changes.outputs.short_sha }}
         if: env.buildImage == 'true'
 
       - name: Run Terraform
@@ -110,7 +110,7 @@ jobs:
           terraform apply -auto-approve
 
   backend:
-    if: contains(needs.changes.outputs.changed_directories, 'backend') && ${{ always() }}
+    if: ${{ always() }} && contains(needs.changes.outputs.changed_directories, 'backend')
     needs: [changes, infrastructure]
     runs-on: ubuntu-latest
     steps:
@@ -140,19 +140,19 @@ jobs:
           tags: |
             ${{ env.AWS_ECR_REPO_URL }}:latest
             ${{ env.AWS_ECR_REPO_URL }}:${{ github.ref_name }}
-            ${{ env.AWS_ECR_REPO_URL }}:${{ steps.sha.outputs.short }}
+            ${{ env.AWS_ECR_REPO_URL }}:${{ needs.changes.outputs.short_sha }}
 
       - name: Update backend...
         working-directory: "./infrastructure/environments/dev/"
         env:
-          TF_VAR_image_tag: ${{ steps.sha.outputs.short }}
+          TF_VAR_image_tag: ${{ needs.changes.outputs.short_sha }}
         run: |
           echo "Updating backend image..."
           terraform init
           terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
 
   frontend:
-    if: contains(needs.changes.outputs.changed_directories, 'frontend') && ${{ always() }}
+    if: ${{ always() }} && contains(needs.changes.outputs.changed_directories, 'frontend')
     needs: [changes, infrastructure,backend]
     runs-on: ubuntu-latest
     steps:

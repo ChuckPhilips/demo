@@ -75,5 +75,3 @@ locals {
 #     vpc_id_in = module.vpc.id
 #     subnets_in = module.vpc.private_subnets_ids
 # }
-
-
