@@ -160,8 +160,8 @@ jobs:
             ${{ env.BACKEND_REPOSITORY_URL }}:latest
             ${{ env.BACKEND_REPOSITORY_URL }}:${{ github.ref_name }}
             ${{ env.BACKEND_REPOSITORY_URL }}:${{ needs.changes.outputs.short_sha }}
-          env:
-            BACKEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_REPOSITORY_NAME) }}
+        env:
+          BACKEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_REPOSITORY_NAME) }}
 
       - name: Update backend...
         working-directory: "./infrastructure/environments/dev/"
