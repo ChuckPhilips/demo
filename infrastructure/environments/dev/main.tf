@@ -68,10 +68,10 @@ module "vpc" {
     postfix_in    = "dev"
 }
 
-# module "ecs" {
-#     source = "../../modules/ecs"
-#     postfix_in = "dev"
-#     container_image_in = local.container_image
-#     vpc_id_in = module.vpc.id
-#     subnets_in = module.vpc.private_subnets_ids
-# }
+module "ecs" {
+    source = "../../modules/ecs"
+    postfix_in = "dev"
+    container_image_in = local.container_image
+    vpc_id_in = module.vpc.id
+    subnets_in = module.vpc.private_subnets_ids
+}
