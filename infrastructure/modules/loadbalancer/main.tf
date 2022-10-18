@@ -34,7 +34,7 @@ resource "aws_lb" "api" {
   name                       = "main-${var.postfix_in}"
   load_balancer_type         = "application"
   drop_invalid_header_fields = true
-  enable_deletion_protection = true
+  enable_deletion_protection = false
   subnets                    = var.subnets_in
 
   security_groups = [aws_security_group.lb.id]
