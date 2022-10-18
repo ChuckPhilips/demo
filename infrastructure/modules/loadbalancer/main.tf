@@ -8,19 +8,19 @@ resource "aws_security_group" "lb" {
   name        = "lb-${var.postfix_in}"
   vpc_id      = var.vpc_id_in
 
-  ingress {
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+    ingress {
+        protocol    = "tcp"
+        from_port   = 80
+        to_port     = 80
+        cidr_blocks = ["0.0.0.0/0"]
+    }
 
-  ingress {
-    protocol    = "tcp"
-    from_port   = 443
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+    ingress {
+        protocol    = "tcp"
+        from_port   = 443
+        to_port     = 443
+        cidr_blocks = ["0.0.0.0/0"]
+    }
 
     egress {
       protocol    = "tcp"
