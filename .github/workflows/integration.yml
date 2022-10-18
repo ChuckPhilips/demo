@@ -12,7 +12,7 @@ env:
 
 jobs:
   changes:
-    name: "Changes"
+    name: "Analysis"
     runs-on: ubuntu-latest  # windows-latest | macos-latest
     steps:
 
