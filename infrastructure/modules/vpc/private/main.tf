@@ -7,7 +7,7 @@ variable "nat_gateway_id_in" {}
 resource "aws_subnet" "private" {
   cidr_block        = var.subnet_in
   vpc_id            = var.vpc_id_in
-  availability_zone = "${data.aws_region.current.name}${identifier_in}"
+  availability_zone = "${data.aws_region.current.name}${var.identifier_in}"
 
   tags = tomap({ Name = "subnet-private-${var.identifier_in}-${var.postfix_in}" })
 }
