@@ -196,29 +196,29 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: "frontend"
+        working-directory: ${{ env.FRONTEND_DIRECTORY }}
       
       - name: Test
         run: npm test
         env:
           CI: true
-        working-directory: "frontend"
+        working-directory: ${{ env.FRONTEND_DIRECTORY }}
       
       - name: Generate build
         run: npm run build
-        working-directory: "frontend"
+        working-directory: ${{ env.FRONTEND_DIRECTORY }}
 
       - name: "Check if index.html exists..."
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "./frontend/build/index.html"
+          files: "./$FRONTEND_DIRECTORY/build/index.html"
 
       - name: "Fail if files dont exit"
         if: steps.check_files.outputs.files_exists != 'true'
         run: |
           ls -alh ./build
-          echo "./frontend/build/index.html is missing!"
+          echo "./$FRONTEND_DIRECTORY/build/index.html is missing!"
           exit 1
 
       - name: Configure AWS credentials
@@ -230,7 +230,7 @@ jobs:
 
       - name: Deploy to S3
         run: aws s3 sync "./build/" s3://artifacts1910 --dryrun --exclude docker --delete
-        working-directory: "frontend"
+        working-directory: ${{ env.FRONTEND_DIRECTORY }}
 
       - name: Test env
         run: echo ${{ env.FRONTEND_DIRECTORY }}
