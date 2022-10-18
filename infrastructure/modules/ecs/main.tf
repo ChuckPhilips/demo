@@ -92,8 +92,6 @@ resource "aws_ecs_service" "api" {
       container_name   = "nginx"
       container_port   = var.nodejs_port_in
     }
-
-  #depends_on = [aws_lb_listener.api_https]
 }
 
 
