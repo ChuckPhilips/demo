@@ -139,6 +139,13 @@ jobs:
         with:
           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Build image for backend...
         uses: docker/build-push-action@v2
         with:
@@ -151,17 +158,6 @@ jobs:
             ${{ env.BACKEND_REPOSITORY_URL }}:${{ needs.changes.outputs.short_sha }}
         env:
           BACKEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_REPOSITORY_NAME) }}
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
 
       #- name: Update backend...
       #  working-directory: "./infrastructure/environments/dev/"
