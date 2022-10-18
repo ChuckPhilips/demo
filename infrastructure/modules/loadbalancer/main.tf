@@ -31,7 +31,7 @@ resource "aws_security_group" "lb" {
 }
 
 resource "aws_lb" "api" {
-  name                       = "${var.postfix_in}"
+  name                       = "main-${var.postfix_in}"
   load_balancer_type         = "application"
   drop_invalid_header_fields = true
   enable_deletion_protection = true
@@ -41,7 +41,7 @@ resource "aws_lb" "api" {
 }
 
 resource "aws_lb_target_group" "api" {
-  name_prefix          = "main-${var.postfix_in}"
+  name_prefix          = "${var.postfix_in}"
   protocol             = "HTTP"
   vpc_id               = var.vpc_id_in
   target_type          = "ip"
