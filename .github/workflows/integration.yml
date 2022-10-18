@@ -177,6 +177,8 @@ jobs:
       (needs.backend.result == 'success' || needs.backend.result == 'skipped') &&
       contains(needs.changes.outputs.changed_directories, 'frontend')
     runs-on: ubuntu-latest
+    env:
+      FRONTEND_DIRECTORY: 'frontend'
     steps:
 
       - name: Download repository
@@ -191,29 +193,29 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: frontend
+        working-directory: ${FRONTEND_DIRECTORY}
       
       - name: Test
         run: npm test
         env:
           CI: true
-        working-directory: frontend
+        working-directory: ${FRONTEND_DIRECTORY}
       
       - name: Generate build
         run: npm run build
-        working-directory: frontend
+        working-directory: ${FRONTEND_DIRECTORY}
 
       - name: "Check if index.html exists..."
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "./build/index.html"
+          files: "./${FRONTEND_DIRECTORY}/build/index.html"
 
       - name: "Fail if files dont exit"
         if: steps.check_files.outputs.files_exists != 'true'
         run: |
           ls -alh ./build
-          echo "./build/index.html is missing!"
+          echo "./${FRONTEND_DIRECTORY}/build/index.html is missing!"
           exit 1
 
       - name: Configure AWS credentials
@@ -224,7 +226,7 @@ jobs:
           aws-region: "us-east-2"
 
       - name: Deploy to S3
-        run: aws s3 sync . s3://react-github-actions --dry-run --exclude docker --delete
+        run: aws s3 sync "./${ FRONTEND_DIRECTORY}/build/" s3://react-github-actions --dry-run --exclude docker --delete
         working-directory: frontend
 
       #- name: Invalidate Cache
