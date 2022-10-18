@@ -11,6 +11,7 @@ env:
 
 jobs:
   changes:
+    name: "Changes"
     runs-on: ubuntu-latest  # windows-latest | macos-latest
     steps:
 
@@ -40,6 +41,7 @@ jobs:
       short_sha: ${{ steps.sha.outputs.short }}
       
   infrastructure:
+    name: Infrastructure
     needs: changes
     runs-on: ubuntu-latest
     if: |
@@ -119,6 +121,7 @@ jobs:
           terraform apply -auto-approve
 
   backend:
+    name: Backend
     needs: [changes, infrastructure]
     if: |
       always() &&
@@ -165,6 +168,7 @@ jobs:
           terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
 
   frontend:
+    name: Frontend
     needs: [changes, infrastructure, backend]
     if: |
       always() &&
