@@ -50,9 +50,9 @@ data "template_file" "api_container_definitions" {
     proxy_container_image          = var.proxy_container_image_in
     proxy_container_memory         = "256"
     proxy_container_port           = var.proxy_container_port_in
-    musicbox_log_group_name        = aws_cloudwatch_log_group.proxy.name
-    musicbox_log_group_region      = data.aws_region.current.name
-    musicbox_awslogs_stream_prefix = "proxy"
+    proxy_log_group_name           = aws_cloudwatch_log_group.proxy.name
+    proxy_log_group_region         = data.aws_region.current.name
+    proxy_awslogs_stream_prefix    = "proxy"
   }
 }
 
@@ -104,7 +104,7 @@ resource "aws_ecs_service" "api" {
   load_balancer {
     target_group_arn = var.target_group_arn_in
     container_name   = "nginx"
-    container_port   = var.nodejs_port_in
+    container_port   = var.proxy_container_port_in
   }
 }
 
