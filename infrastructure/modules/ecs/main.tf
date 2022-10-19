@@ -1,5 +1,4 @@
 variable "postfix_in" {}
-variable "container_image_in" {}
 variable "proxy_container_image_in" {}
 variable "vpc_id_in" {}
 variable "subnets_in" {}
