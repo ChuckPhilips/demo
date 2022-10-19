@@ -31,7 +31,7 @@ resource "aws_cloudwatch_log_group" "nodejs" {
 }
 
 resource "aws_cloudwatch_log_group" "proxy" {
-  name              = "nodejs-${var.postfix_in}"
+  name              = "nginx-${var.postfix_in}"
   retention_in_days = "14"
 }
 
