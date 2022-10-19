@@ -47,7 +47,7 @@ data "template_file" "api_container_definitions" {
     musicbox_log_group_region      = data.aws_region.current.name
     musicbox_awslogs_stream_prefix = "webapp"
     proxy_container_name            = "nginx"
-    proxy_container_image         = var.proxy_container_image
+    proxy_container_image         = var.proxy_container_image_in
     proxy_container_memory      = "256"
     proxy_container_port        = var.proxy_container_port_in
     musicbox_log_group_name        = aws_cloudwatch_log_group.proxy.name
