@@ -1,7 +1,7 @@
 variable "vpc_id_in" {}
 variable "postfix_in" {}
 variable "subnets_in" {}
-variable "nodejs_port_in" {}
+variable "backend_proxy_port_in" {}
 
 resource "aws_security_group" "lb" {
   description = "Allow access to Application Load Balancer"
@@ -24,8 +24,8 @@ resource "aws_security_group" "lb" {
 
   egress {
     protocol    = "tcp"
-    from_port   = var.nodejs_port_in
-    to_port     = var.nodejs_port_in
+    from_port   = var.backend_proxy_port_in
+    to_port     = var.backend_proxy_port_in
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -45,12 +45,12 @@ resource "aws_lb_target_group" "api" {
   protocol             = "HTTP"
   vpc_id               = var.vpc_id_in
   target_type          = "ip"
-  port                 = var.nodejs_port_in
+  port                 = var.backend_proxy_port_in
   deregistration_delay = 60
 
   health_check {
     path                = "/"
-    port                = var.nodejs_port_in
+    port                = var.backend_proxy_port_in
     interval            = 60
     healthy_threshold   = 2
     unhealthy_threshold = 2

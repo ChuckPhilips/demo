@@ -20,6 +20,10 @@ variable "nodejs_port" {
 
 variable "image_tag" {}
 
+variable "proxy_container_port" {
+  default = 80
+}
+
 terraform {
   backend "s3" {
     bucket         = "fcuic-infrastructure-lock"
@@ -59,6 +63,8 @@ variable "global_tags" {
 locals {
   postfix         = "${var.environment}-${data.aws_caller_identity.current.account_id}"
   container_image = "454624638483.dkr.ecr.us-east-2.amazonaws.com/backend:${var.image_tag}"
+  proxy_image = "454624638483.dkr.ecr.us-east-2.amazonaws.com/proxy:latest"
+
   tags = merge(var.global_tags,
     {
       Environment = var.environment
@@ -76,10 +82,12 @@ locals {
 #   source              = "../../modules/ecs"
 #   postfix_in          = "dev"
 #   container_image_in  = local.container_image
+#   proxy_image_in      = local.proxy_image
 #   vpc_id_in           = module.vpc.id
 #   subnets_in          = module.vpc.private_subnets_ids
 #   target_group_arn_in = module.loadbalancer.target_group_arn
 #   nodejs_port_in      = var.nodejs_port
+#   proxy_container_port_in = var.proxy_container_port
 # }
 
 # module "loadbalancer" {
@@ -87,5 +95,5 @@ locals {
 #   vpc_id_in      = module.vpc.id
 #   postfix_in     = "dev"
 #   subnets_in     = module.vpc.public_subnets_ids
-#   nodejs_port_in = var.nodejs_port
+#   backend_proxy_port_in = var.proxy_container_port
 # }

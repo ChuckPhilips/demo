@@ -1,9 +1,11 @@
 variable "postfix_in" {}
 variable "container_image_in" {}
+variable "proxy_image_in" {}
 variable "vpc_id_in" {}
 variable "subnets_in" {}
 variable "target_group_arn_in" {}
 variable "nodejs_port_in" {}
+variable "proxy_container_port_in" {}
 
 data "aws_region" "current" {}
 
@@ -23,8 +25,13 @@ resource "aws_ecs_cluster" "main" {
 
 }
 
-resource "aws_cloudwatch_log_group" "ecs_task_logs" {
-  name              = "api-${var.postfix_in}"
+resource "aws_cloudwatch_log_group" "nodejs" {
+  name              = "nodejs-${var.postfix_in}"
+  retention_in_days = "14"
+}
+
+resource "aws_cloudwatch_log_group" "proxy" {
+  name              = "nodejs-${var.postfix_in}"
   retention_in_days = "14"
 }
 
@@ -32,13 +39,20 @@ data "template_file" "api_container_definitions" {
   template = file("${path.module}/templates/musicbox.json.tpl") # ../../modules/ecs
 
   vars = {
-    musicbox_container_name        = "nginx"
+    musicbox_container_name        = "webapp"
     musicbox_container_image       = var.container_image_in
     musicbox_container_memory      = "256"
     musicbox_container_port        = var.nodejs_port_in
-    musicbox_log_group_name        = aws_cloudwatch_log_group.ecs_task_logs.name
+    musicbox_log_group_name        = aws_cloudwatch_log_group.nodejs.name
     musicbox_log_group_region      = data.aws_region.current.name
-    musicbox_awslogs_stream_prefix = "nginx"
+    musicbox_awslogs_stream_prefix = "webapp"
+    proxy_container_name            = "nginx"
+    proxy_container_image         = var.proxy_container_image
+    proxy_container_memory      = "256"
+    proxy_container_port        = var.proxy_container_port_in
+    musicbox_log_group_name        = aws_cloudwatch_log_group.proxy.name
+    musicbox_log_group_region      = data.aws_region.current.name
+    musicbox_awslogs_stream_prefix = "proxy"
   }
 }
 
