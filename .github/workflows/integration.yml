@@ -102,7 +102,7 @@ jobs:
           else
               echo "There are no images, will build one..."
               echo "buildBackendAppImage=true" >> "$GITHUB_ENV"
-              echo "TF_VAR_backend_app_container_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
+              echo "TF_VAR_backend_app_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
           fi
 
           echo "Getting backend proxy images..."
@@ -130,7 +130,7 @@ jobs:
           else
             echo "Proxy image does not exists..."
             echo "buildBackendProxyImage=true" >> "$GITHUB_ENV"
-            echo "TF_VAR_backend_proxy_container_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
+            echo "TF_VAR_backend_proxy_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
           fi
 
       - name: Login to Amazon ECR
@@ -255,7 +255,7 @@ jobs:
         run: |
             if [[ ${{ contains(needs.changes.outputs.changed_directories, 'proxy') }} == true ]]
             then
-              echo "TF_VAR_backend_proxy_container_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
+              echo "TF_VAR_backend_proxy_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
             else 
               echo "Getting tag from latest image..."
               backend_proxy_images=$(aws ecr describe-images --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
@@ -268,7 +268,7 @@ jobs:
         run: |
             if [[ ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }} == true ]]
             then
-              echo "TF_VAR_backend_app_container_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
+              echo "TF_VAR_backend_app_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
             else 
               echo "Getting tag from latest image..."
               backend_app_images=$(aws ecr describe-images --repository-name "${BACKEND_REPOSITORY_NAME}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
