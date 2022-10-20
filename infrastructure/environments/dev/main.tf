@@ -92,7 +92,6 @@ module "ecs" {
   subnets_in               = module.vpc.private_subnets_ids
   target_group_arn_in      = module.loadbalancer.target_group_arn
   proxy_container_port_in  = var.backend_proxy_container_port
-  proxy_container_image_in   = local.proxy_image
 }
 
 module "loadbalancer" {
