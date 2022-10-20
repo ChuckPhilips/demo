@@ -1,10 +1,12 @@
 variable "postfix_in" {}
-variable "proxy_container_image_in" {}
 variable "vpc_id_in" {}
 variable "subnets_in" {}
 variable "target_group_arn_in" {}
-variable "nodejs_port_in" {}
+variable "app_container_port_in" {}
+variable "app_container_image_in" {}
 variable "proxy_container_port_in" {}
+variable "proxy_container_image_in" {}
+
 
 data "aws_region" "current" {}
 
@@ -39,9 +41,9 @@ data "template_file" "api_container_definitions" {
 
   vars = {
     musicbox_container_name        = "webapp"
-    musicbox_container_image       = var.container_image_in
+    musicbox_container_image       = var.app_container_image_in
     musicbox_container_memory      = "256"
-    musicbox_container_port        = var.nodejs_port_in
+    musicbox_container_port        = var.app_container_port_in
     musicbox_log_group_name        = aws_cloudwatch_log_group.nodejs.name
     musicbox_log_group_region      = data.aws_region.current.name
     musicbox_awslogs_stream_prefix = "webapp"
