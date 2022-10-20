@@ -253,7 +253,7 @@ jobs:
 
       - name: Set proxy tag
         run: |
-            if [[ ${{ contains(needs.changes.outputs.changed_directories, 'proxy') }} == 'true' ]]
+            if [[ ${{ contains(needs.changes.outputs.changed_directories, 'proxy') }} == true ]]
             then
               echo "TF_VAR_backend_proxy_container_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
             else 
@@ -266,7 +266,7 @@ jobs:
 
       - name: Set app tag
         run: |
-            if [[ ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }} == 'true' ]]
+            if [[ ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }} == true ]]
             then
               echo "TF_VAR_backend_app_container_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
             else 
