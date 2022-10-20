@@ -111,11 +111,26 @@ jobs:
 
           if [[ ${BACKEND_PROXY_IMAGES_IDS} -gt 0 ]]
           then
-            echo "Proxy image already exists..."
-            echo "buildBackendProxyImage=false" >> "$GITHUB_ENV"
+            echo "Some images already exist, getting them..."
+            backend_proxy_images=$(aws ecr describe-images --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
+            echo "Images are: ${backend_proxy_images}"
+            echo "Getting tag from latest image..."
+            tag=$(echo "$backend_proxy_images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"' | tail -n1)
+            echo "Image tag is: ${tag}"
+
+          if [[ $(echo $tag | wc -l) -gt 0 ]]
+            then
+              echo "Image already exists, going to Terraform!!!"
+              echo "buildBackendProxyImage=false" >> "$GITHUB_ENV"
+              echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
+            else
+              echo "Latest tag does not exits, something wrong, exiting..."
+              exit 1
+            fi
           else
             echo "Proxy image does not exists..."
             echo "buildBackendProxyImage=true" >> "$GITHUB_ENV"
+            echo "TF_VAR_backend_proxy_container_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
           fi
 
       - name: Login to Amazon ECR
