@@ -193,6 +193,8 @@ jobs:
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
       contains(needs.changes.outputs.changed_directories, 'backend')
     runs-on: ubuntu-latest
+    env:
+      FILTER_TAG: latest
     steps:
 
       - name: Download repository
@@ -214,10 +216,12 @@ jobs:
       - name: Substitute proxy env variables
         run: envsubst <  default.conf.tpl > default.conf
         working-directory: './backend/proxy/'
+        if: contains(needs.changes.outputs.changed_directories, 'proxy')
 
       - name: Substitute app env variables
         run: envsubst <  server.js.tpl > server.js
         working-directory: './backend/nodejs/'
+        if: contains(needs.changes.outputs.changed_directories, 'nodejs')
 
       - name: Build image for proxy...
         uses: docker/build-push-action@v2
@@ -247,16 +251,41 @@ jobs:
           BACKEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_REPOSITORY_NAME) }}
         if: contains(needs.changes.outputs.changed_directories, 'nodejs')
 
-      #- name: Update backend...
-      #  working-directory: "./infrastructure/environments/dev/"
-      #  env:
-      #    TF_VAR_backend_app_container_image_tag: ${{ needs.changes.outputs.short_sha }}
-      #    TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
-      #    TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
-      #  run: |
-      #    echo "Updating backend image..."
-      #    terraform init
-      #    terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
+      - name: Set proxy tag
+        run: |
+            if [[ ${{ contains(needs.changes.outputs.changed_directories, 'proxy') }} == 'true' ]]
+            then
+              echo "TF_VAR_backend_proxy_container_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
+            else 
+              echo "Getting tag from latest image..."
+              backend_proxy_images=$(aws ecr describe-images --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
+              tag=$(echo "$backend_proxy_images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"' | tail -n1)
+              echo "Image tag is: ${tag}"
+              echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
+            fi
+
+      - name: Set app tag
+        run: |
+            if [[ ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }} == 'true' ]]
+            then
+              echo "TF_VAR_backend_app_container_image_tag=${{ steps.sha.outputs.short }}" >> "$GITHUB_ENV"
+            else 
+              echo "Getting tag from latest image..."
+              backend_app_images=$(aws ecr describe-images --repository-name "${BACKEND_REPOSITORY_NAME}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
+              tag=$(echo "$backend_app_images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"' | tail -n1)
+              echo "Image tag is: ${tag}"
+              echo "TF_VAR_backend_app_container_image_tag=${tag}" >> "$GITHUB_ENV"
+            fi
+
+      - name: Update backend...
+        working-directory: "./infrastructure/environments/dev/"
+        env:
+          TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+          TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
+        run: |
+          echo "Updating backend image..."
+          terraform init
+          terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
 
   frontend:
     name: Frontend
