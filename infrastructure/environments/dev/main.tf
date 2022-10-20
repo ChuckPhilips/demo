@@ -76,28 +76,28 @@ locals {
   )
 }
 
-#module "vpc" {
-#  source        = "../../modules/vpc"
-#  cidr_block_in = var.cidr_block
-#  postfix_in    = "dev"
-#}
-#
-#module "ecs" {
-#  source                   = "../../modules/ecs"
-#  postfix_in               = "dev"
-#  app_container_image_in   = local.container_image
-#  app_container_port_in    = var.backend_app_container_port
-#  proxy_container_image_in = local.proxy_image
-#  vpc_id_in                = module.vpc.id
-#  subnets_in               = module.vpc.private_subnets_ids
-#  target_group_arn_in      = module.loadbalancer.target_group_arn
-#  proxy_container_port_in  = var.backend_proxy_container_port
-#}
-#
-#module "loadbalancer" {
-#  source                = "../../modules/loadbalancer"
-#  vpc_id_in             = module.vpc.id
-#  postfix_in            = "dev"
-#  subnets_in            = module.vpc.public_subnets_ids
-#  backend_proxy_port_in = var.backend_proxy_container_port
-#}
+module "vpc" {
+  source        = "../../modules/vpc"
+  cidr_block_in = var.cidr_block
+  postfix_in    = "dev"
+}
+
+module "ecs" {
+  source                   = "../../modules/ecs"
+  postfix_in               = "dev"
+  app_container_image_in   = local.container_image
+  app_container_port_in    = var.backend_app_container_port
+  proxy_container_image_in = local.proxy_image
+  vpc_id_in                = module.vpc.id
+  subnets_in               = module.vpc.private_subnets_ids
+  target_group_arn_in      = module.loadbalancer.target_group_arn
+  proxy_container_port_in  = var.backend_proxy_container_port
+}
+
+module "loadbalancer" {
+  source                = "../../modules/loadbalancer"
+  vpc_id_in             = module.vpc.id
+  postfix_in            = "dev"
+  subnets_in            = module.vpc.public_subnets_ids
+  backend_proxy_port_in = var.backend_proxy_container_port
+}
