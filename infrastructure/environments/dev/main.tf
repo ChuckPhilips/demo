@@ -101,3 +101,5 @@ module "loadbalancer" {
   subnets_in            = module.vpc.public_subnets_ids
   backend_proxy_port_in = var.backend_proxy_container_port
 }
+
+#dodaj novi modul za bazu
