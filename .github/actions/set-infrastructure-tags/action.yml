@@ -35,7 +35,7 @@ runs:
 
           if [[ ${BACKEND_PROXY_IMAGES_IDS} -gt 0 ]]
           then
-            echo "Some images already exist, getting them by tag: ${{ inputs.filter-tag }}}"
+            echo "Some images already exist, getting them by tag: ${{ inputs.filter-tag }}"
             
             backend_proxy_images=$(aws ecr describe-images \
             --repository-name "${{ inputs.repository-name }}" \
