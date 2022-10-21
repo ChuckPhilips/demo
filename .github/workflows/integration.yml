@@ -50,9 +50,9 @@ jobs:
         uses: hashicorp/setup-terraform@v2
     
       - name: Call terraform output
-      run: |
-        output=$(terraform output cloudfront)
-        echo $output
+        run: |
+          output=$(terraform output cloudfront)
+          echo $output
 
     outputs:
       changed_directories: ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
