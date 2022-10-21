@@ -312,6 +312,16 @@ jobs:
               echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
             fi
 
+      - name: Set proxy tag2
+        uses: ./.github/actions/set-tags/
+        with: 
+          short-sha: ${{ needs.changes.outputs.short_sha }}
+          repository-name: ${BACKEND_PROXY_REPOSITORY_NAME}
+          filter-tag: ${FILTER_TAG}
+          region: ${AWS_REGION}
+          branch: ${{ github.ref_name }}
+          changed: ${{ contains(needs.changes.outputs.changed_directories, 'proxy') }}
+
       - name: Set app tag
         run: |
             if [[ ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }} == true ]]
@@ -334,15 +344,15 @@ jobs:
               echo "TF_VAR_backend_app_container_image_tag=${tag}" >> "$GITHUB_ENV"
             fi
 
-      - name: Update backend...
-        working-directory: "./infrastructure/environments/dev/"
-        env:
-          TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
-          TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
-        run: |
-          echo "Updating backend image..."
-          terraform init
-          terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
+      # - name: Update backend...
+      #   working-directory: "./infrastructure/environments/dev/"
+      #   env:
+      #     TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+      #     TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
+      #   run: |
+      #     echo "Updating backend image..."
+      #     terraform init
+      #     terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
 
   frontend:
     name: Frontend
@@ -369,7 +379,7 @@ jobs:
           node-version: 16.x
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
         working-directory: ${{ env.FRONTEND_DIRECTORY }}
       
       - name: Test

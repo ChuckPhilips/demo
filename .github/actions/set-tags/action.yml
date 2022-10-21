@@ -1,0 +1,47 @@
+name: "Set tags"
+description: "Set tags for Terraform variables"
+inputs:
+  short-sha:
+    required: true
+    description: "Shorter commit id"
+  repository-name:
+    required: true
+    description: "Repository for the app"
+    default: Demo
+  filter-tag:
+    required: true
+    description: "Tag to filter images by"
+    default: latest
+  region:
+    required: true
+    description: "Repository region"
+  branch:
+    required: true
+    description: "Images filter"
+  changed:
+    required: true
+    description: "Check if image has been changed"
+runs:
+  using: "composite"
+  steps:
+    - name: Set image tag
+      run: |
+        if [[ ${{ inputs.changed }} == true ]]
+        then
+          echo "Set tag: ${{ inputs.short_sha }} to Terraform variables since new image will be built..."
+          echo "TF_VAR_backend_proxy_container_image_tag=${{ inputs.short_sha }}" >> "$GITHUB_ENV"
+        else 
+          echo "Getting tag from latest image..."
+          backend_proxy_images=$(aws ecr describe-images \
+          --repository-name "${{ inputs.repository-name }}" \
+          --image-ids imageTag="${{ inputs.filter-tag }}" \
+          --region "${{ inputs.region }}")
+          tag=$(echo "$backend_proxy_images" \
+          | jq '.imageDetails[].imageTags' \
+          | jq --arg BRANCH "${{ inputs.branch }}" --arg FILTER "${{ inputs.filter-tag }}}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
+          | tr -d '"' \
+          | tail -n1)
+          echo "Image tag is: ${tag}"
+          echo "Add tag: ${tag} to Terraform environment variables..."
+          echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
+        fi
