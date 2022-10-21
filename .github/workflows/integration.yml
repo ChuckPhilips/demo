@@ -135,6 +135,8 @@ jobs:
           BACKEND_PROXY_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_PROXY_REPOSITORY_NAME) }}
         if: env.buildBackendProxyImage == 'true'
 
+      - run:  env
+
       - name: Setup terraform 
         uses: hashicorp/setup-terraform@v2
         with:
