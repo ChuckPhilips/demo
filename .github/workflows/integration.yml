@@ -42,7 +42,7 @@ jobs:
             echo "$directory was changed"
           done
 
-      - name: Set short sha
+      - name: Get short commit id
         id: sha
         run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
 
@@ -87,26 +87,28 @@ jobs:
 
           if [[ ${BACKEND_APP_IMAGES_IDS} -gt 0 ]]
           then
-            echo "Some images already exist, getting them..."
+            echo "Get image with tag: ${FILTER_TAG}"
             
-            backend_app_images=$(aws ecr describe-images --repository-name "${BACKEND_REPOSITORY_NAME}" \
+            backend_app_images=$(aws ecr describe-images \
+            --repository-name "${BACKEND_REPOSITORY_NAME}" \
             --image-ids imageTag="${FILTER_TAG}" \
             --region "${AWS_REGION}")
             
-            echo "Images are: ${backend_app_images}"
+            echo "Image is: ${backend_app_images}"
 
             echo "Getting tag from latest image..."
             
             tag=$(echo "$backend_app_images" \
             | jq '.imageDetails[].imageTags' \
-            | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' \
+            | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "${FILTER_TAG"))[]' \
             | tr -d '"' \
             | tail -n1)
 
             if [[ $(echo $tag | wc -l) -gt 0 ]]
             then
-              echo "Image already exists, tag is: ${tag}"
               echo "buildBackendAppImage=false" >> "$GITHUB_ENV"
+              echo "Tag is: ${tag} so no need to build the image..."
+              echo "Set tag ${tag} in Terraform environment variables..."
               echo "TF_VAR_backend_app_container_image_tag=${tag}" >> "$GITHUB_ENV"
             else
               echo "Latest tag does not exits, something wrong, exiting..."
@@ -115,6 +117,7 @@ jobs:
           else
               echo "There are no images, will build one..."
               echo "buildBackendAppImage=true" >> "$GITHUB_ENV"
+              echo "Set tag: ${{ needs.changes.outputs.short_sha }} to Terraform environment variables..."
               echo "TF_VAR_backend_app_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
           fi
 
@@ -123,7 +126,7 @@ jobs:
           FILTER_TAG: "latest"
 
         run: |
-          echo "Getting backend proxy images..."
+          echo "Getting backend proxy images ids..."
           
           BACKEND_PROXY_IMAGES_IDS=$(aws ecr list-images \
           --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" \
@@ -146,7 +149,7 @@ jobs:
             echo "Getting tag from latest image..."
             tag=$(echo "$backend_proxy_images" \
             | jq '.imageDetails[].imageTags' \
-            | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' \
+            | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "${FILTER_TAG}"))[]' \
             | tr -d '"' \
             | tail -n1)
 
@@ -154,6 +157,7 @@ jobs:
             then
               echo "Image already exists, tag is ${tag}"
               echo "buildBackendProxyImage=false" >> "$GITHUB_ENV"
+              echo "Set tag ${tag} in Terraform environment variables..."
               echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
             else
               echo "Latest tag does not exits, something wrong, exiting..."
@@ -162,6 +166,7 @@ jobs:
           else
             echo "Proxy image does not exists, will build one..."
             echo "buildBackendProxyImage=true" >> "$GITHUB_ENV"
+            echo "Set tag ${{ needs.changes.outputs.short_sha }} in Terraform environment variables..."
             echo "TF_VAR_backend_proxy_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
           fi
 
@@ -289,6 +294,7 @@ jobs:
         run: |
             if [[ ${{ contains(needs.changes.outputs.changed_directories, 'proxy') }} == true ]]
             then
+              echo "Set tag: ${{ needs.changes.outputs.short_sha }} to Terraform variables since new image will be built..."
               echo "TF_VAR_backend_proxy_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
             else 
               echo "Getting tag from latest image..."
@@ -298,10 +304,11 @@ jobs:
               --region "${AWS_REGION}")
               tag=$(echo "$backend_proxy_images" \
               | jq '.imageDetails[].imageTags' \
-              | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' \
+              | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "${FILTER_TAG}"))[]' \
               | tr -d '"' \
               | tail -n1)
               echo "Image tag is: ${tag}"
+              echo "Add tag: ${tag} to Terraform environment variables..."
               echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
             fi
 
@@ -309,6 +316,7 @@ jobs:
         run: |
             if [[ ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }} == true ]]
             then
+              echo "Set tag: ${{ needs.changes.outputs.short_sha }} to Terraform variables since new image will be built..."
               echo "TF_VAR_backend_app_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
             else 
               echo "Getting tag from latest image..."
@@ -322,6 +330,7 @@ jobs:
               | tr -d '"' \
               | tail -n1)
               echo "Image tag is: ${tag}"
+              echo "Add tag: ${tag} to Terraform environment variables..."
               echo "TF_VAR_backend_app_container_image_tag=${tag}" >> "$GITHUB_ENV"
             fi
 
