@@ -291,28 +291,6 @@ jobs:
         if: contains(needs.changes.outputs.changed_directories, 'nodejs')
 
       - name: Set proxy tag
-        run: |
-            if [[ ${{ contains(needs.changes.outputs.changed_directories, 'proxy') }} == true ]]
-            then
-              echo "Set tag: ${{ needs.changes.outputs.short_sha }} to Terraform variables since new image will be built..."
-              echo "TF_VAR_backend_proxy_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
-            else 
-              echo "Getting tag from latest image..."
-              backend_proxy_images=$(aws ecr describe-images \
-              --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" \
-              --image-ids imageTag="${FILTER_TAG}" \
-              --region "${AWS_REGION}")
-              tag=$(echo "$backend_proxy_images" \
-              | jq '.imageDetails[].imageTags' \
-              | jq --arg BRANCH "${{ github.ref_name }}" --arg FILTER "${FILTER_TAG}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
-              | tr -d '"' \
-              | tail -n1)
-              echo "Image tag is: ${tag}"
-              echo "Add tag: ${tag} to Terraform environment variables..."
-              echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
-            fi
-
-      - name: Set proxy tag2
         uses: ./.github/actions/set-tags/
         with: 
           short-sha: ${{ needs.changes.outputs.short_sha }}
@@ -323,26 +301,14 @@ jobs:
           changed: ${{ contains(needs.changes.outputs.changed_directories, 'proxy') }}
 
       - name: Set app tag
-        run: |
-            if [[ ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }} == true ]]
-            then
-              echo "Set tag: ${{ needs.changes.outputs.short_sha }} to Terraform variables since new image will be built..."
-              echo "TF_VAR_backend_app_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
-            else 
-              echo "Getting tag from latest image..."
-              backend_app_images=$(aws ecr describe-images \
-              --repository-name "${BACKEND_REPOSITORY_NAME}" \
-              --image-ids imageTag="${FILTER_TAG}" \
-              --region "${AWS_REGION}")
-              tag=$(echo "$backend_app_images" \
-              | jq '.imageDetails[].imageTags' \
-              | jq --arg BRANCH "${{ github.ref_name }}" --arg FILTER "${FILTER_TAG}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
-              | tr -d '"' \
-              | tail -n1)
-              echo "Image tag is: ${tag}"
-              echo "Add tag: ${tag} to Terraform environment variables..."
-              echo "TF_VAR_backend_app_container_image_tag=${tag}" >> "$GITHUB_ENV"
-            fi
+        uses: ./.github/actions/set-tags/
+        with: 
+          short-sha: ${{ needs.changes.outputs.short_sha }}
+          repository-name: ${BACKEND_REPOSITORY_NAME}
+          filter-tag: ${FILTER_TAG}
+          region: ${AWS_REGION}
+          branch: ${{ github.ref_name }}
+          changed: ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }}
 
       # - name: Update backend...
       #   working-directory: "./infrastructure/environments/dev/"
