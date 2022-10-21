@@ -23,11 +23,9 @@ inputs:
     description: "Check if image has been changed"
 runs:
   using: "composite"
-  defaults:
-    run:
-      shell: bash
   steps:
     - name: Set image tag
+      shell: bash
       run: |
         if [[ ${{ inputs.changed }} == true ]]
         then
