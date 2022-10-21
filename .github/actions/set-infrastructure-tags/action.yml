@@ -1,0 +1,71 @@
+name: "Set tags"
+description: "Set tags for Terraform variables"
+inputs:
+  short-sha:
+    required: true
+    description: "Shorter commit id"
+  repository-name:
+    required: true
+    description: "Repository for the app"
+    default: Demo
+  filter-tag:
+    required: true
+    description: "Tag to filter images by"
+    default: latest
+  region:
+    required: true
+    description: "Repository region"
+  branch:
+    required: true
+    description: "Images filter"
+runs:
+  using: "composite"
+  steps:
+    - name: Set image tag
+      shell: bash
+      run: |
+          echo "Getting backend proxy images ids..."
+          
+          BACKEND_PROXY_IMAGES_IDS=$(aws ecr list-images \
+          --repository-name "${{ inputs.repository-name }}" \
+          --region "${AWS_REGION}" \
+          | jq '.imageIds | length')
+          
+          echo "Backend proxy images ids: ${BACKEND_PROXY_IMAGES_IDS}"
+
+          if [[ ${BACKEND_PROXY_IMAGES_IDS} -gt 0 ]]
+          then
+            echo "Some images already exist, getting them by tag: ${{ inputs.filter-tag }}}"
+            
+            backend_proxy_images=$(aws ecr describe-images \
+            --repository-name "${{ inputs.repository-name }}" \
+            --image-ids imageTag="${{ inputs.filter-tag }}" \
+            --region "${{ inputs.region }}")
+            
+            echo "Images are: ${backend_proxy_images}"
+            
+            echo "Getting tag from latest image..."
+            tag=$(echo "$backend_proxy_images" \
+            | jq '.imageDetails[].imageTags' \
+            | jq \
+            --arg BRANCH "${{ inputs.branch }}" \
+            --arg FILTER "${{ inputs.filter-tag }}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
+            | tr -d '"' \
+            | tail -n1)
+
+            if [[ $(echo $tag | wc -l) -gt 0 ]]
+            then
+              echo "Image already exists, tag is ${tag}"
+              echo "buildBackendProxyImage=false" >> "$GITHUB_ENV"
+              echo "Set tag ${tag} in Terraform environment variables..."
+              echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
+            else
+              echo "Latest tag does not exits, something wrong, exiting..."
+              exit 1
+            fi
+          else
+            echo "Proxy image does not exists, will build one..."
+            echo "buildBackendProxyImage=true" >> "$GITHUB_ENV"
+            echo "Set tag ${{ inputs.short-sha }} in Terraform environment variables..."
+            echo "TF_VAR_backend_proxy_container_image_tag=${{ inputs.short-sha }}" >> "$GITHUB_ENV"
+          fi
