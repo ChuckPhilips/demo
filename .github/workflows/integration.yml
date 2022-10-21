@@ -135,8 +135,6 @@ jobs:
           BACKEND_PROXY_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_PROXY_REPOSITORY_NAME) }}
         if: env.buildBackendProxyImage == 'true'
 
-      - run:  env
-
       - name: Setup terraform 
         uses: hashicorp/setup-terraform@v2
         with:
@@ -149,6 +147,7 @@ jobs:
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
+        working-directory: "./infrastructure/environments/dev/"
 
       - name: Terraform plan
         run: terraform plan -no-color
@@ -169,6 +168,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FILTER_TAG: latest
+      TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+      TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }} 
     steps:
 
       - name: Download repository
@@ -244,6 +245,32 @@ jobs:
           region: ${AWS_REGION}
           branch: ${{ github.ref_name }}
           changed: ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }}
+
+      - name: Setup terraform 
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform init
+        run: terraform init
+        working-directory: "./infrastructure/environments/dev/"
+
+      - name: Terraform validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: "./infrastructure/environments/dev/"
+
+      - name: Terraform plan
+        run: terraform plan -no-color     
+        working-directory: "./infrastructure/environments/dev/"
+
+      - name: Terraform apply
+        run: terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
+        working-directory: "./infrastructure/environments/dev/"
+
+      # - name: Terraform apply
+      #   working-directory: "./infrastructure/environments/dev"
+      #   run: terraform apply -auto-approve
 
       # - name: Update backend...
       #   working-directory: "./infrastructure/environments/dev/"
