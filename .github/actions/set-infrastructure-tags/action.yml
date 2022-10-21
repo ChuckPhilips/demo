@@ -53,6 +53,8 @@ runs:
             | tr -d '"' \
             | tail -n1)
 
+            echo "${TAG}"
+
             if [[ $(echo "${TAG}" | wc -l) -gt 0 ]]
             then
               echo "Image already exists, tag is ${TAG}"
