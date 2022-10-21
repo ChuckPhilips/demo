@@ -25,18 +25,18 @@ jobs:
     runs-on: ubuntu-latest  # windows-latest | macos-latest
     steps:
 
-      - name: Download repository
+      - name: Download repository...
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
-      - name: Check changed directories
+      - name: Check changed directories...
         id: changed-files-dir-names
         uses: tj-actions/changed-files@v29.0.2
         with:
           dir_names: "true"
 
-      - name: List all changed directories
+      - name: List all changed directories...
         run: |
           for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
             echo "$directory was changed"
@@ -71,28 +71,43 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Update infrastructure
+      - name: Update backend app TF variables
         env:
           FILTER_TAG: "latest"
 
         run: |
           echo "Getting backend app images ids..."
-          BACKEND_APP_IMAGES_IDS=$(aws ecr list-images --repository-name "${BACKEND_REPOSITORY_NAME}" --region "${AWS_REGION}" | jq '.imageIds | length')
+          
+          BACKEND_APP_IMAGES_IDS=$(aws ecr list-images \
+          --repository-name "${BACKEND_REPOSITORY_NAME}" \
+          --region "${AWS_REGION}" \
+          | jq '.imageIds \
+          | length')
 
           echo "Backend app images ids: ${BACKEND_APP_IMAGES_IDS}"
 
           if [[ ${BACKEND_APP_IMAGES_IDS} -gt 0 ]]
           then
             echo "Some images already exist, getting them..."
-            backend_app_images=$(aws ecr describe-images --repository-name "${BACKEND_REPOSITORY_NAME}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
+            
+            backend_app_images=$(aws ecr describe-images \
+            --repository-name "${BACKEND_REPOSITORY_NAME}" \
+            --image-ids imageTag="${FILTER_TAG}" \
+            --region "${AWS_REGION}")
+            
             echo "Images are: ${backend_app_images}"
+
             echo "Getting tag from latest image..."
-            tag=$(echo "$backend_app_images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"' | tail -n1)
-            echo "Image tag is: ${tag}"
+            
+            tag=$(echo "$backend_app_images" \
+            | jq '.imageDetails[].imageTags' \
+            | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' \
+            | tr -d '"' \
+            | tail -n1)
 
             if [[ $(echo $tag | wc -l) -gt 0 ]]
             then
-              echo "Image already exists, going to Terraform!!!"
+              echo "Image already exists, tag is: ${tag}"
               echo "buildBackendAppImage=false" >> "$GITHUB_ENV"
               echo "TF_VAR_backend_app_container_image_tag=${tag}" >> "$GITHUB_ENV"
             else
@@ -105,22 +120,42 @@ jobs:
               echo "TF_VAR_backend_app_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
           fi
 
+      - name: Update proxy TF variables
+        env:
+          FILTER_TAG: "latest"
+
+        run: |
           echo "Getting backend proxy images..."
-          BACKEND_PROXY_IMAGES_IDS=$(aws ecr list-images --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" --region "${AWS_REGION}" | jq '.imageIds | length')
+          
+          BACKEND_PROXY_IMAGES_IDS=$(aws ecr list-images \
+          --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" \
+          --region "${AWS_REGION}" \
+          | jq '.imageIds \
+          | length')
+          
           echo "Backend proxy images ids: ${BACKEND_PROXY_IMAGES_IDS}"
 
           if [[ ${BACKEND_PROXY_IMAGES_IDS} -gt 0 ]]
           then
             echo "Some images already exist, getting them..."
-            backend_proxy_images=$(aws ecr describe-images --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
+            
+            backend_proxy_images=$(aws ecr describe-images \
+            --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" \
+            --image-ids imageTag="${FILTER_TAG}" \
+            --region "${AWS_REGION}")
+            
             echo "Images are: ${backend_proxy_images}"
+            
             echo "Getting tag from latest image..."
-            tag=$(echo "$backend_proxy_images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"' | tail -n1)
-            echo "Image tag is: ${tag}"
+            tag=$(echo "$backend_proxy_images" \
+            | jq '.imageDetails[].imageTags' \
+            | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' \
+            | tr -d '"' \
+            | tail -n1)
 
             if [[ $(echo $tag | wc -l) -gt 0 ]]
             then
-              echo "Image already exists, going to Terraform!!!"
+              echo "Image already exists, tag is ${tag}"
               echo "buildBackendProxyImage=false" >> "$GITHUB_ENV"
               echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
             else
@@ -128,7 +163,7 @@ jobs:
               exit 1
             fi
           else
-            echo "Proxy image does not exists..."
+            echo "Proxy image does not exists, will build one..."
             echo "buildBackendProxyImage=true" >> "$GITHUB_ENV"
             echo "TF_VAR_backend_proxy_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
           fi
@@ -148,7 +183,7 @@ jobs:
         working-directory: './backend/nodejs/'
         if: env.buildBackendAppImage == 'true'
       
-      - name: Building initial image...
+      - name: Building app image...
         uses: docker/build-push-action@v2
         with:
           context: "./backend/nodejs/"
@@ -162,7 +197,7 @@ jobs:
           BACKEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_REPOSITORY_NAME) }}
         if: env.buildBackendAppImage == 'true'
 
-      - name: Build image for proxy...
+      - name: Build proxy image...
         uses: docker/build-push-action@v2
         with:
           context: "./backend/proxy"
@@ -176,13 +211,15 @@ jobs:
           BACKEND_PROXY_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_PROXY_REPOSITORY_NAME) }}
         if: env.buildBackendProxyImage == 'true'
 
-      - name: Run Terraform
+      - name: Terraform plan...
         working-directory: "./infrastructure/environments/dev/"
         run: |
-          echo "Running Terraform..."
           terraform init
           terraform plan
-          terraform apply -auto-approve
+      
+      - name: Terraform apply...
+        working-directory: "./infrastructure/environments/dev"
+        run: terraform apply -auto-approve
 
   backend:
     name: Backend
@@ -258,8 +295,15 @@ jobs:
               echo "TF_VAR_backend_proxy_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
             else 
               echo "Getting tag from latest image..."
-              backend_proxy_images=$(aws ecr describe-images --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
-              tag=$(echo "$backend_proxy_images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"' | tail -n1)
+              backend_proxy_images=$(aws ecr describe-images \
+              --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" \
+              --image-ids imageTag="${FILTER_TAG}" \
+              --region "${AWS_REGION}")
+              tag=$(echo "$backend_proxy_images" \
+              | jq '.imageDetails[].imageTags' \
+              | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' \
+              | tr -d '"' \
+              | tail -n1)
               echo "Image tag is: ${tag}"
               echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
             fi
@@ -271,8 +315,15 @@ jobs:
               echo "TF_VAR_backend_app_container_image_tag=${{ needs.changes.outputs.short_sha }}" >> "$GITHUB_ENV"
             else 
               echo "Getting tag from latest image..."
-              backend_app_images=$(aws ecr describe-images --repository-name "${BACKEND_REPOSITORY_NAME}" --image-ids imageTag="${FILTER_TAG}" --region "${AWS_REGION}")
-              tag=$(echo "$backend_app_images" | jq '.imageDetails[].imageTags' | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' | tr -d '"' | tail -n1)
+              backend_app_images=$(aws ecr describe-images \
+              --repository-name "${BACKEND_REPOSITORY_NAME}" \
+              --image-ids imageTag="${FILTER_TAG}" \
+              --region "${AWS_REGION}")
+              tag=$(echo "$backend_app_images" \
+              | jq '.imageDetails[].imageTags' \
+              | jq 'del(.[] | select(. == "${{ github.ref_name }}" or . == "latest"))[]' \
+              | tr -d '"' \
+              | tail -n1)
               echo "Image tag is: ${tag}"
               echo "TF_VAR_backend_app_container_image_tag=${tag}" >> "$GITHUB_ENV"
             fi
