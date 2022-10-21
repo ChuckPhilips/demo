@@ -100,7 +100,7 @@ jobs:
             
             tag=$(echo "$backend_app_images" \
             | jq '.imageDetails[].imageTags' \
-            | jq --arg BRANCH "${{ github.ref_name }}" --arg FILTER "${FILTER_TAG" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
+            | jq --arg BRANCH "${{ github.ref_name }}" --arg FILTER "${FILTER_TAG}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
             | tr -d '"' \
             | tail -n1)
 
@@ -149,7 +149,7 @@ jobs:
             echo "Getting tag from latest image..."
             tag=$(echo "$backend_proxy_images" \
             | jq '.imageDetails[].imageTags' \
-            | jq --arg BRANCH "${{ github.ref_name }}" --arg FILTER "${FILTER_TAG" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]'
+            | jq --arg BRANCH "${{ github.ref_name }}" --arg FILTER "${FILTER_TAG}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]'
             | tr -d '"' \
             | tail -n1)
 
@@ -304,7 +304,7 @@ jobs:
               --region "${AWS_REGION}")
               tag=$(echo "$backend_proxy_images" \
               | jq '.imageDetails[].imageTags' \
-              | jq --arg BRANCH "${{ github.ref_name }}" --arg FILTER "${FILTER_TAG" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]'
+              | jq --arg BRANCH "${{ github.ref_name }}" --arg FILTER "${FILTER_TAG}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]'
               | tr -d '"' \
               | tail -n1)
               echo "Image tag is: ${tag}"
@@ -326,7 +326,7 @@ jobs:
               --region "${AWS_REGION}")
               tag=$(echo "$backend_app_images" \
               | jq '.imageDetails[].imageTags' \
-              | jq --arg BRANCH "${{ github.ref_name }}" --arg FILTER "${FILTER_TAG" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]'
+              | jq --arg BRANCH "${{ github.ref_name }}" --arg FILTER "${FILTER_TAG}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]'
               | tr -d '"' \
               | tail -n1)
               echo "Image tag is: ${tag}"
