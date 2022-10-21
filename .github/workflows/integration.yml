@@ -53,12 +53,13 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: './infrastructure/environments/dev/'
+        working-directory: "./infrastructure/environments/dev/"
     
       - name: Call terraform output
         run: |
           output=$(terraform output cloudfront)
           echo $output
+        working-directory: "./infrastructure/environments/dev/"
 
     outputs:
       changed_directories: ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
