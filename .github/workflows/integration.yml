@@ -168,8 +168,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FILTER_TAG: latest
-      TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
-      TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }} 
     steps:
 
       - name: Download repository
@@ -261,11 +259,17 @@ jobs:
         working-directory: "./infrastructure/environments/dev/"
 
       - name: Terraform plan
-        run: terraform plan -no-color     
+        run: terraform plan -no-color
+        env:
+            TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+            TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
         working-directory: "./infrastructure/environments/dev/"
 
       - name: Terraform apply
         run: terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
+        env:
+            TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+            TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
         working-directory: "./infrastructure/environments/dev/"
 
       # - name: Terraform apply
