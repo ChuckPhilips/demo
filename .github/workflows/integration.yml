@@ -419,12 +419,6 @@ jobs:
         env:
           FRONTEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.FRONTEND_REPOSITORY_NAME) }}
 
-      - name: Setup terraform 
-        uses: hashicorp/setup-terraform@v2
-        run:
-          output=$(terraform output test)
-          echo $output
-
       #- name: Invalidate Cache
       #  uses: chetan/invalidate-cloudfront-action@v2
       #  env:
