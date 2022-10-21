@@ -58,9 +58,9 @@ jobs:
         with:
           terraform_wrapper: false
 
-      # - name: Terraform Init
-      #   run: terraform init
-      #   working-directory: "./infrastructure/environments/dev/"
+      - name: Terraform Init
+        run: terraform init
+        working-directory: "./infrastructure/environments/dev/"
     
       - name: Call terraform output
         run: |
