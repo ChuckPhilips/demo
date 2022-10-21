@@ -103,6 +103,7 @@ locals {
 #}
 
 
+
 output "cloudfront" {
   value = "dinamo"
 }

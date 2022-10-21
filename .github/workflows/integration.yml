@@ -142,8 +142,12 @@ jobs:
         run: terraform init
         working-directory: "./infrastructure/environments/dev/"
 
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
       - name: Terraform plan
-        run: terraform plan
+        run: terraform plan -no-color
         working-directory: "./infrastructure/environments/dev/"
 
       # - name: Terraform apply

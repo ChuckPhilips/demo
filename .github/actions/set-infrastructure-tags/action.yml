@@ -45,7 +45,7 @@ runs:
             echo "Images are: ${backend_proxy_images}"
             
             echo "Getting tag from latest image..."
-            tag=$(echo "$backend_proxy_images" \
+            TAG=$(echo "$backend_proxy_images" \
             | jq '.imageDetails[].imageTags' \
             | jq \
             --arg BRANCH "${{ inputs.branch }}" \
@@ -53,12 +53,12 @@ runs:
             | tr -d '"' \
             | tail -n1)
 
-            if [[ $(echo $tag | wc -l) -gt 0 ]]
+            if [[ $(echo ${TAG} | wc -l) -gt 0 ]]
             then
-              echo "Image already exists, tag is ${tag}"
+              echo "Image already exists, tag is ${TAG}"
               echo "buildBackendProxyImage=false" >> "$GITHUB_ENV"
-              echo "Set tag ${tag} in Terraform environment variables..."
-              echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
+              echo "Set tag ${TAG} in Terraform environment variables..."
+              echo "TF_VAR_backend_proxy_container_image_tag=${TAG}" >> "$GITHUB_ENV"
             else
               echo "Latest tag does not exits, something wrong, exiting..."
               exit 1
