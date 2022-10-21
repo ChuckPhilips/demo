@@ -45,7 +45,7 @@ runs:
             echo "Images are: ${backend_proxy_images}"
             
             echo "Getting tag from latest image..."
-            TAG=$(echo "$backend_proxy_images" \
+            TAG=$(echo "${backend_proxy_images}" \
             | jq '.imageDetails[].imageTags' \
             | jq \
             --arg BRANCH "${{ inputs.branch }}" \
@@ -53,7 +53,7 @@ runs:
             | tr -d '"' \
             | tail -n1)
 
-            if [[ $(echo ${TAG} | wc -l) -gt 0 ]]
+            if [[ $(echo "${TAG}" | wc -l) -gt 0 ]]
             then
               echo "Image already exists, tag is ${TAG}"
               echo "buildBackendProxyImage=false" >> "$GITHUB_ENV"
