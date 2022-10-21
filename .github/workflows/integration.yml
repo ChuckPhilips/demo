@@ -46,28 +46,6 @@ jobs:
         id: sha
         run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
 
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ env.AWS_REGION }}
-
-      # - name: Setup terraform 
-      #   uses: hashicorp/setup-terraform@v2
-      #   with:
-      #     terraform_wrapper: false
-
-      # - name: Terraform Init
-      #   run: terraform init
-      #   working-directory: "./infrastructure/environments/dev/"
-    
-      # - name: Call terraform output
-      #   run: |
-      #     output=$(terraform output cloudfront)
-      #     echo $output
-      #   working-directory: "./infrastructure/environments/dev/"
-
     outputs:
       changed_directories: ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
       short_sha: ${{ steps.sha.outputs.short }}
