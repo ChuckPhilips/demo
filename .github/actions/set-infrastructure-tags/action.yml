@@ -28,7 +28,7 @@ runs:
           
           BACKEND_PROXY_IMAGES_IDS=$(aws ecr list-images \
           --repository-name "${{ inputs.repository-name }}" \
-          --region "${AWS_REGION}" \
+          --region "${{ inputs.region }}" \
           | jq '.imageIds | length')
           
           echo "Backend proxy images ids: ${BACKEND_PROXY_IMAGES_IDS}"
