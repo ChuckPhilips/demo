@@ -81,8 +81,7 @@ jobs:
           BACKEND_APP_IMAGES_IDS=$(aws ecr list-images \
           --repository-name "${BACKEND_REPOSITORY_NAME}" \
           --region "${AWS_REGION}" \
-          | jq '.imageIds \
-          | length')
+          | jq '.imageIds | length')
 
           echo "Backend app images ids: ${BACKEND_APP_IMAGES_IDS}"
 
@@ -90,8 +89,7 @@ jobs:
           then
             echo "Some images already exist, getting them..."
             
-            backend_app_images=$(aws ecr describe-images \
-            --repository-name "${BACKEND_REPOSITORY_NAME}" \
+            backend_app_images=$(aws ecr describe-images --repository-name "${BACKEND_REPOSITORY_NAME}" \
             --image-ids imageTag="${FILTER_TAG}" \
             --region "${AWS_REGION}")
             
@@ -130,8 +128,7 @@ jobs:
           BACKEND_PROXY_IMAGES_IDS=$(aws ecr list-images \
           --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" \
           --region "${AWS_REGION}" \
-          | jq '.imageIds \
-          | length')
+          | jq '.imageIds | length')
           
           echo "Backend proxy images ids: ${BACKEND_PROXY_IMAGES_IDS}"
 
