@@ -46,6 +46,11 @@ jobs:
         id: sha
         run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
 
+      - name: Test output
+        run: echo $TERRAFORM
+        env:
+          TERRAFORM: ${{ terraform ouptuts cloudfront }}
+
     outputs:
       changed_directories: ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
       short_sha: ${{ steps.sha.outputs.short }}
@@ -137,7 +142,7 @@ jobs:
 
           if [[ ${BACKEND_PROXY_IMAGES_IDS} -gt 0 ]]
           then
-            echo "Some images already exist, getting them..."
+            echo "Some images already exist, getting them by tag: ${FILTER_TAG}"
             
             backend_proxy_images=$(aws ecr describe-images \
             --repository-name "${BACKEND_PROXY_REPOSITORY_NAME}" \
