@@ -46,10 +46,11 @@ jobs:
         id: sha
         run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
 
-      - name: Test output
-        run: echo $TERRAFORM
-        env:
-          TERRAFORM: ${{ terraform ouptuts cloudfront }}
+      - name: Setup terraform 
+        uses: hashicorp/setup-terraform@v2
+        run:
+          output=$(terraform output cloudfront)
+          echo $output
 
     outputs:
       changed_directories: ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
@@ -415,6 +416,12 @@ jobs:
         run: echo ${{ env.FRONTEND_REPOSITORY_URL }}
         env:
           FRONTEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.FRONTEND_REPOSITORY_NAME) }}
+
+      - name: Setup terraform 
+        uses: hashicorp/setup-terraform@v2
+        run:
+          output=$(terraform output test)
+          echo $output
 
       #- name: Invalidate Cache
       #  uses: chetan/invalidate-cloudfront-action@v2
