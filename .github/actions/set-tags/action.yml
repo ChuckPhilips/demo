@@ -23,6 +23,9 @@ inputs:
     description: "Check if image has been changed"
 runs:
   using: "composite"
+  defaults:
+    run:
+      shell: bash
   steps:
     - name: Set image tag
       run: |
