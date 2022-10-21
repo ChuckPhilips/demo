@@ -102,7 +102,6 @@ locals {
 #  backend_proxy_port_in = var.backend_proxy_container_port
 #}
 
-
 output "cloudfront" {
   value = "dinamo"
 }
