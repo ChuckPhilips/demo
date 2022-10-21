@@ -21,7 +21,7 @@ env:
 
 jobs:
   changes:
-    name: "Analysis"
+    name: "Routing"
     runs-on: ubuntu-latest  # windows-latest | macos-latest
     steps:
 
