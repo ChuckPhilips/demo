@@ -37,23 +37,22 @@ runs:
           then
             echo "Some images already exist, getting them by tag: ${{ inputs.filter-tag }}"
             
-            backend_proxy_images=$(aws ecr describe-images \
+            BACKEND_PROXY_IMAGES=$(aws ecr describe-images \
             --repository-name "${{ inputs.repository-name }}" \
             --image-ids imageTag="${{ inputs.filter-tag }}" \
             --region "${{ inputs.region }}")
             
-            echo "Images are: ${backend_proxy_images}"
+            echo "Images are: ${BACKEND_PROXY_IMAGES}"
             
             echo "Getting tag from latest image..."
-            TAG=$(echo "${backend_proxy_images}" \
+
+            TAG=$(echo "${BACKEND_PROXY_IMAGES}" \
             | jq '.imageDetails[].imageTags' \
             | jq \
             --arg BRANCH "${{ inputs.branch }}" \
             --arg FILTER "${{ inputs.filter-tag }}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
             | tr -d '"' \
             | tail -n1)
-
-            echo "${TAG}"
 
             if [[ $(echo "${TAG}" | wc -l) -gt 0 ]]
             then
