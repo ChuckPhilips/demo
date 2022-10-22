@@ -65,7 +65,7 @@ jobs:
     if: |
       always() &&
       needs.changes.result == 'success' &&
-      contains(needs.changes.outputs.changed_directories, env.INFRASTRUCTURE_DIRECTORY)
+      contains(needs.changes.outputs.changed_directories, "$(echo $INFRASTRUCTURE_DIRECTORY)")
     steps:
       - name: Download repository
         uses: actions/checkout@v3
