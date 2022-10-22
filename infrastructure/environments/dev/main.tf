@@ -82,8 +82,23 @@ locals {
 #  postfix_in    = "dev"
 #}
 #
+
+#module "loadbalancer" {
+#  source                = "../../modules/loadbalancer"
+#  vpc_id_in             = module.vpc.id
+#  postfix_in            = "dev"
+#  subnets_in            = module.vpc.public_subnets_ids
+#  backend_proxy_port_in = var.backend_proxy_container_port
+#}
+
 #module "ecs" {
-#  source                   = "../../modules/ecs"
+#  source = "../../modules/ecs"
+#  postfix_in = "dev"
+#}
+
+#module "backend" {
+#  source                   = "../../modules/backend"
+#  ecs_name_in                = module.ecs.name
 #  postfix_in               = "dev"
 #  app_container_image_in   = local.container_image
 #  app_container_port_in    = var.backend_app_container_port
@@ -94,16 +109,13 @@ locals {
 #  proxy_container_port_in  = var.backend_proxy_container_port
 #}
 #
-#module "loadbalancer" {
-#  source                = "../../modules/loadbalancer"
-#  vpc_id_in             = module.vpc.id
-#  postfix_in            = "dev"
-#  subnets_in            = module.vpc.public_subnets_ids
-#  backend_proxy_port_in = var.backend_proxy_container_port
-#}
+
+module "frontend" {
+  source     = "../../modules/frontend"
+  postfix_in = "dev"
+}
 
 
-
-output "cloudfront" {
-  value = "dinamo"
+output "cloudfront_id" {
+  value = module.frontend.cloudfront_id
 }

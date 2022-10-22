@@ -359,12 +359,11 @@ jobs:
     
       - name: Call terraform output
         run: |
-          output=$(terraform output cloudfront)
-          echo "output=${output}" >> "$GITHUB_ENV"
+          echo "CLOUDFRONT_ID=$(terraform output cloudfront_id)" >> "$GITHUB_ENV"
         working-directory: "./infrastructure/environments/dev/"
 
       - name: Test
-        run: echo ${{ env.output }}
+        run: echo ${{ env.CLOUDFRONT_ID }}
 
       #- name: Invalidate Cache
       #  uses: chetan/invalidate-cloudfront-action@v2
