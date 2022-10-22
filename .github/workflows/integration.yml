@@ -88,7 +88,7 @@ jobs:
           region: ${{ env.AWS_REGION }}
           branch: ${{ github.ref_name }}
           tf-var-name: backend_app_container_image_tag
-          build-var: buildBackendAppImage
+          build-image: buildBackendAppImage
 
       - name: Set proxy TF vars
         uses: ./.github/actions/set-infrastructure-tags/
@@ -99,7 +99,7 @@ jobs:
           region: ${{ env.AWS_REGION }}
           branch: ${{ github.ref_name }}
           tf-var-name: backend_proxy_container_image_tag
-          build-var: buildBackendProxyImage
+          build-image: buildBackendProxyImage
 
       - name: Login to Amazon ECR
         id: login-ecr
