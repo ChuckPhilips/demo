@@ -233,7 +233,7 @@ jobs:
         uses: ./.github/actions/set-backend-tags/
         with: 
           short-sha: ${{ needs.changes.outputs.short_sha }}
-          repository-name: ${BACKEND_PROXY_REPOSITORY_NAME}
+          repository-name: ${{ env.BACKEND_PROXY_REPOSITORY_NAME }}
           filter-tag: ${{ env.FILTER_TAG }}
           region: ${{ env.AWS_REGION }}
           branch: ${{ github.ref_name }}
@@ -243,7 +243,7 @@ jobs:
         uses: ./.github/actions/set-backend-tags/
         with: 
           short-sha: ${{ needs.changes.outputs.short_sha }}
-          repository-name: ${BACKEND_REPOSITORY_NAME}
+          repository-name: ${{ env.BACKEND_REPOSITORY_NAME }}
           filter-tag: ${{ env.FILTER_TAG }}
           region: ${{ env.AWS_REGION }}
           branch: ${{ github.ref_name }}
