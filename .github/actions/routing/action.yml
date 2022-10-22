@@ -22,6 +22,7 @@ runs:
 
     - name: Analysis
       id: analysis
+      shell: bash
       run: |
           if [[ ${{ contains(needs.changes.outputs.changed_directories, 'infra') }} ]]
           then
