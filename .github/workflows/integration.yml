@@ -40,16 +40,6 @@ jobs:
         id: routing
         uses: ./.github/actions/routing
 
-      - name: Run changed-files with json output
-        id: changed-files-json
-        uses: tj-actions/changed-files@v33
-        with:
-          json: "true"
-          dir_names: "true"
-      
-      - name: Show changed json
-        run: echo ${{ steps.changed-files-json.outputs.all_changed_and_modified_files }}
-
     outputs:
       changed_directories: ${{ steps.routing.outputs.changed_directories }}
       short_sha: ${{ steps.routing.outputs.short_sha }}
