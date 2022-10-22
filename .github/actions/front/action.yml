@@ -1,0 +1,84 @@
+name: "Frontend"
+description: "Sets frontend"
+inputs:
+  aws-access-key-id:
+    required: true
+  aws-secret-access-key:
+    required: true
+  short-sha:
+    required: true
+  changed-directories:
+    required: true
+runs:
+  using: "composite"
+  steps: 
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ${{ env.FRONTEND_DIRECTORY }}
+      
+      - name: Test
+        run: npm test
+        env:
+          CI: true
+        working-directory: ${{ env.FRONTEND_DIRECTORY }}
+      
+      - name: Generate build
+        run: npm run build
+        working-directory: ${{ env.FRONTEND_DIRECTORY }}
+
+      - name: "Check if index.html exists..."
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "./${{env.FRONTEND_DIRECTORY}}/build/index.html"
+
+      - name: "Fail if files dont exit"
+        if: steps.check_files.outputs.files_exists != 'true'
+        run: |
+          ls -alh ./build
+          echo "./$FRONTEND_DIRECTORY/build/index.html is missing!"
+          exit 1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ inputs.aws-access-key-id }}
+          aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to S3
+        run: aws s3 sync "./build/" s3://artifacts1910 --dryrun --exclude docker --delete
+        working-directory: ${{ env.FRONTEND_DIRECTORY }}
+
+      - name: Setup terraform 
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+        shell: bash
+    
+      - name: Call terraform output
+        run: |
+          echo "CLOUDFRONT_ID=$(terraform output cloudfront_id | tr -d '\"')" >> "$GITHUB_ENV"
+        working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+
+      - name: Test
+        run: echo ${{ env.CLOUDFRONT_ID }}
+
+      - name: Invalidate Cache
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: ${{ env.CLOUDFRONT_ID }}
+          PATHS: "/*"
+          AWS_REGION: ${{ env.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+          DEBUG: "1"
