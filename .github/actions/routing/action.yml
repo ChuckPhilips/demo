@@ -24,21 +24,21 @@ runs:
       id: analysis
       shell: bash
       run: |
-          if [[ ${{ contains(steps.changes-files-dir-names.outputs.all_changed_and_modified_files, 'infra') }} ]]
+          if [[ ${{ contains(steps.changes-files-dir-names.outputs.all_changed_and_modified_files, 'infra') }} == true ]]
           then
             echo "infra_changed=true" >> $GITHUB_OUTPUT
           else
-            echo "infra_changed}=false" >> $GITHUB_OUTPUT
+            echo "infra_changed=false" >> $GITHUB_OUTPUT
           fi
 
-          if [[ ${{ contains(steps.changes-files-dir-names.outputs.all_changed_and_modified_files, 'back') }} ]]
+          if [[ ${{ contains(steps.changes-files-dir-names.outputs.all_changed_and_modified_files, 'back') }} == true ]]
           then
             echo "back_changed=true" >> $GITHUB_OUTPUT
           else
             echo "back_changed=false" >> $GITHUB_OUTPUT
           fi
 
-          if [[ ${{ contains(steps.changes-files-dir-names.outputs.all_changed_and_modified_files, 'front') }} ]]
+          if [[ ${{ contains(steps.changes-files-dir-names.outputs.all_changed_and_modified_files, 'front') }} == true ]]
           then
             echo "front_changed=true" >> $GITHUB_OUTPUT
           else
