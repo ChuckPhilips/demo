@@ -365,12 +365,12 @@ jobs:
       - name: Test
         run: echo ${{ env.CLOUDFRONT_ID }}
 
-      #- name: Invalidate Cache
-      #  uses: chetan/invalidate-cloudfront-action@v2
-      #  env:
-      #    DISTRIBUTION: ${{ secrets.DEV_DISTRIBUTION }}
-      #    PATHS: "/*"
-      #    AWS_REGION: ${{ secrets.DEV_AWS_REGION }}
-      #    AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
-      #    AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
-      #    DEBUG: "1"
+      - name: Invalidate Cache
+       uses: chetan/invalidate-cloudfront-action@v2
+       env:
+         DISTRIBUTION: ${{ env.CLOUDFRONT_ID }}
+         PATHS: "/*"
+         AWS_REGION: ${{ env.AWS_REGION }}
+         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         DEBUG: "1"
