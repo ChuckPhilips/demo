@@ -19,7 +19,6 @@ env:
   APP_PORT: 8080
   APP_HOST: localhost
   FILTER_TAG: latest
-  FRONTEND_DIRECTORY: 'tier1'
   PROXY_DIRECTORY: 'proxy'
   NODEJS_DIRECTORY: 'nodejs'
 
@@ -175,7 +174,7 @@ jobs:
       always() &&
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, ${{ env.BACKEND_DIRECTORY }})
+      contains(needs.changes.outputs.changed_directories, ${BACKEND_DIRECTORY})
     steps:
 
       - name: Download repository
@@ -288,10 +287,10 @@ jobs:
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
       (needs.backend.result == 'success' || needs.backend.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, ${{ env.FRONTEND_DIRECTORY }})
+      contains(needs.changes.outputs.changed_directories, ${FRONTEND_DIRECTORY})
     runs-on: ubuntu-latest
     env:
-      FRONTEND_DIRECTORY: "frontend"
+      FRONTEND_DIRECTORY: "tier1"
     steps:
 
       - name: Download repository
