@@ -22,6 +22,7 @@ env:
   PROXY_DIRECTORY: 'proxy'
   NODEJS_DIRECTORY: 'nodejs'
   BACKEND_DIRECTORY: 'tier2'
+  INFRASTRUCTURE_DIRECTORY: 'tier0'
 
 jobs:
   changes:
@@ -61,8 +62,6 @@ jobs:
     name: Infrastructure
     needs: changes
     runs-on: ubuntu-latest
-    env:
-      INFRASTRUCTURE_DIRECTORY: 'tier0'
     if: |
       always() &&
       needs.changes.result == 'success' &&
@@ -194,19 +193,19 @@ jobs:
 
       - name: Substitute proxy env variables
         run: envsubst <  default.conf.tpl > default.conf
-        working-directory: "./${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
+        working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
         if: contains(needs.changes.outputs.changed_directories, 'proxy')
 
       - name: Substitute app env variables
         run: envsubst <  server.js.tpl > server.js
-        working-directory: "./${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
+        working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
         if: contains(needs.changes.outputs.changed_directories, 'nodejs')
 
       - name: Build image for proxy...
         uses: docker/build-push-action@v2
         with:
-          context: "./${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
-          file: "./${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/Dockerfile"
+          context: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
+          file: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/Dockerfile"
           push: true
           tags: |
             ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:latest
@@ -219,8 +218,8 @@ jobs:
       - name: Build image for backend...
         uses: docker/build-push-action@v2
         with:
-          context: "./${{ env.BACKEND_DIRECTORY}}/${{ env.NODEJS_DIRECTORY }}/"
-          file: "./${{ env.BACKEND_DIRECTORY}}/${{ env.NODEJS_DIRECTORY }}/Dockerfile"
+          context: "${{ env.BACKEND_DIRECTORY}}/${{ env.NODEJS_DIRECTORY }}/"
+          file: "${{ env.BACKEND_DIRECTORY}}/${{ env.NODEJS_DIRECTORY }}/Dockerfile"
           push: true
           tags: |
             ${{ env.BACKEND_REPOSITORY_URL }}:latest
@@ -257,26 +256,26 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: "./${{ env.BACKEND_DIRECTORY }}/environments/dev/"
+        working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
 
       - name: Terraform validate
         id: validate
         run: terraform validate -no-color
-        working-directory: "./${{ env.BACKEND_DIRECTORY }}/environments/dev/"
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
 
       - name: Terraform plan
         run: terraform plan -no-color
         env:
             TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
             TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
-        working-directory: "./${{ env.BACKEND_DIRECTORY }}/environments/dev/"
+        working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
 
       # - name: Terraform apply
       #   run: terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
       #   env:
       #       TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
       #       TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
-      #   working-directory: "./${{ env.BACKEND_DIRECTORY }}/environments/dev/"
+      #   working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
 
   frontend:
     name: Frontend
