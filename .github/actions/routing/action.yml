@@ -17,6 +17,8 @@ runs:
       id: analysis
       run: |
         for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
+
+          echo "$directory"
           
           if [[ $(echo "$directory" | grep -cE "^infra") -gt 0 ]]
           then
