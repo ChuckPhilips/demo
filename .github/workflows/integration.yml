@@ -234,8 +234,8 @@ jobs:
         with: 
           short-sha: ${{ needs.changes.outputs.short_sha }}
           repository-name: ${BACKEND_PROXY_REPOSITORY_NAME}
-          filter-tag: ${FILTER_TAG}
-          region: ${AWS_REGION}
+          filter-tag: ${{ env.FILTER_TAG }}
+          region: ${{ env.AWS_REGION }}
           branch: ${{ github.ref_name }}
           changed: ${{ contains(needs.changes.outputs.changed_directories, 'proxy') }}
 
@@ -244,8 +244,8 @@ jobs:
         with: 
           short-sha: ${{ needs.changes.outputs.short_sha }}
           repository-name: ${BACKEND_REPOSITORY_NAME}
-          filter-tag: ${FILTER_TAG}
-          region: ${AWS_REGION}
+          filter-tag: ${{ env.FILTER_TAG }}
+          region: ${{ env.AWS_REGION }}
           branch: ${{ github.ref_name }}
           changed: ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }}
 

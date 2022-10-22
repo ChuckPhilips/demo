@@ -46,6 +46,7 @@ runs:
           --arg FILTER "${{ inputs.filter-tag }}}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
           | tr -d '"' \
           | tail -n1)
+          
           echo "Image tag is: ${TAG}"
           echo "Add tag: ${TAG} to Terraform environment variables..."
           echo "TF_VAR_backend_proxy_container_image_tag=${TAG}"
