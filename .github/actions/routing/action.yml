@@ -1,26 +1,27 @@
 name: "Routing"
 description: "Sets routing"
+inputs:
 runs:
   using: "composite"
-    steps:
-      - name: Check changed directories...
-        id: changed-files-dir-names
-        uses: tj-actions/changed-files@v29.0.2
-        with:
-          dir_names: "true"
+  steps:
+    - name: Check changed directories...
+      id: changed-files-dir-names
+      uses: tj-actions/changed-files@v29.0.2
+      with:
+        dir_names: "true"
 
-      - name: Show output
-        run: echo ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
-        shell: bash
+    - name: Show output
+      run: echo ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
+      shell: bash
 
-      - name: List all changed directories...
-        run: |
-          for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
-            echo "$directory was changed"
-          done
-        shell: bash
+    - name: List all changed directories...
+      run: |
+        for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
+          echo "$directory was changed"
+        done
+      shell: bash
 
-      - name: Get short commit id
-        id: sha
-        run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
-        shell: bash
+    - name: Get short commit id
+      id: sha
+      run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
+      shell: bash
