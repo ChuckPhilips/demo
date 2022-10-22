@@ -27,11 +27,13 @@ runs:
         run: envsubst <  default.conf.tpl > default.conf
         working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
         if: contains(inputs.changed-directories, 'proxy')
+        shell: bash
 
       - name: Substitute app env variables
         run: envsubst <  server.js.tpl > server.js
         working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
         if: contains(inputs.changed-directories, 'nodejs')
+        shell: bash
 
       - name: Build image for proxy...
         uses: docker/build-push-action@v2
@@ -91,11 +93,13 @@ runs:
       - name: Terraform init
         run: terraform init
         working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+        shell: bash
 
       - name: Terraform validate
         id: validate
         run: terraform validate -no-color
         working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+        shell: bash
 
       - name: Terraform plan
         run: terraform plan -no-color
@@ -103,6 +107,7 @@ runs:
             TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
             TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
         working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+        shell: bash
 
       # - name: Terraform apply
       #   run: terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
@@ -110,3 +115,4 @@ runs:
       #       TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
       #       TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
       #   working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+      #   shell: bash
