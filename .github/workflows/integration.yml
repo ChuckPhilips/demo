@@ -40,6 +40,8 @@ jobs:
         id: routing
         uses: ./.github/actions/routing
 
+      - run: echo ${{ steps.routing.outputs.infra_changed }}
+
     outputs:
       changed_directories: ${{ steps.routing.outputs.changed_directories }}
       short_sha: ${{ steps.routing.outputs.short_sha }}
