@@ -286,7 +286,7 @@ jobs:
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
       (needs.backend.result == 'success' || needs.backend.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, env.FRONTEND_DIRECTORY)
+      contains(needs.changes.outputs.changed_directories, 'tier1')
     runs-on: ubuntu-latest
     env:
       FRONTEND_DIRECTORY: "tier1"
