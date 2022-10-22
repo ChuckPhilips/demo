@@ -56,7 +56,7 @@ jobs:
     if: |
       always() &&
       needs.changes.result == 'success' &&
-      needs.changes.outputs.infra_changed == true
+      needs.changes.outputs.infra_changed == 'true'
 #      contains(needs.changes.outputs.changed_directories, 'infra') &&
 #      startsWith(needs.changes.outputs.changed_directories, 'infra')
     steps:
