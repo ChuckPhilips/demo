@@ -359,15 +359,18 @@ jobs:
     
       - name: Call terraform output
         run: |
-          echo "CLOUDFRONT_ID=$(terraform output cloudfront_id)" >> "$GITHUB_ENV"
+          echo "CLOUDFRONT_ID=$(terraform output cloudfront_id | tr -d '\"')" >> "$GITHUB_ENV"
         working-directory: "./infrastructure/environments/dev/"
 
-      - name: Invalidate Cache
-        uses: chetan/invalidate-cloudfront-action@v2
-        env:
-          DISTRIBUTION: ${{ env.CLOUDFRONT_ID }}
-          PATHS: "/*"
-          AWS_REGION: 'us-east-1'
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          DEBUG: "1"
+      - name: Test
+        run: echo ${{ env.CLOUDFRONT_ID }}
+
+      # - name: Invalidate Cache
+      #   uses: chetan/invalidate-cloudfront-action@v2
+      #   env:
+      #     DISTRIBUTION: ${{ env.CLOUDFRONT_ID }}
+      #     PATHS: "/*"
+      #     AWS_REGION: ${{ env.AWS_REGION }}
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     DEBUG: "1"
