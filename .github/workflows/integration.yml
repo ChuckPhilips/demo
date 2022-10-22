@@ -65,7 +65,7 @@ jobs:
     if: |
       always() &&
       needs.changes.result == 'success' &&
-      contains(needs.changes.outputs.changed_directories, ${INFRASTRUCTURE_DIRECTORY})
+      contains(needs.changes.outputs.changed_directories, env.INFRASTRUCTURE_DIRECTORY)
     steps:
       - name: Download repository
         uses: actions/checkout@v3
@@ -174,7 +174,7 @@ jobs:
       always() &&
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, ${BACKEND_DIRECTORY})
+      contains(needs.changes.outputs.changed_directories, env.BACKEND_DIRECTORY)
     steps:
 
       - name: Download repository
@@ -287,7 +287,7 @@ jobs:
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
       (needs.backend.result == 'success' || needs.backend.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, ${FRONTEND_DIRECTORY})
+      contains(needs.changes.outputs.changed_directories, env.FRONTEND_DIRECTORY)
     runs-on: ubuntu-latest
     env:
       FRONTEND_DIRECTORY: "tier1"
