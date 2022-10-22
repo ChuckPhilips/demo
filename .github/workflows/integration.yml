@@ -35,25 +35,6 @@ jobs:
         with:
           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
-      # - name: Check changed directories...
-      #   id: changed-files-dir-names
-      #   uses: tj-actions/changed-files@v29.0.2
-      #   with:
-      #     dir_names: "true"
-
-      # - name: Show output
-      #   run: echo ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
-
-      # - name: List all changed directories...
-      #   run: |
-      #     for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
-      #       echo "$directory was changed"
-      #     done
-
-      # - name: Get short commit id
-      #   id: sha
-      #   run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
-
       - name: Routing
         id: routing
         uses: ./.github/actions/routing
@@ -76,99 +57,106 @@ jobs:
         with:
           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Infrastructure
+        id: infrastructure
+        uses: ./.github/actions/infrastructure
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set app TF vars
-        uses: ./.github/actions/set-infrastructure-tags/
-        with: 
-          short-sha: ${{ needs.changes.outputs.short_sha }}
-          repository-name: ${{ env.BACKEND_REPOSITORY_NAME }}
-          filter-tag: ${{ env.FILTER_TAG }}
-          region: ${{ env.AWS_REGION }}
-          branch: ${{ github.ref_name }}
-          tf-var-name: backend_app_container_image_tag
-          build-image: buildBackendAppImage
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set proxy TF vars
-        uses: ./.github/actions/set-infrastructure-tags/
-        with: 
-          short-sha: ${{ needs.changes.outputs.short_sha }}
-          repository-name: ${{ env.BACKEND_PROXY_REPOSITORY_NAME }}
-          filter-tag: ${{ env.FILTER_TAG }}
-          region: ${{ env.AWS_REGION }}
-          branch: ${{ github.ref_name }}
-          tf-var-name: backend_proxy_container_image_tag
-          build-image: buildBackendProxyImage
+      # - name: Set app TF vars
+      #   uses: ./.github/actions/set-infrastructure-tags/
+      #   with: 
+      #     short-sha: ${{ needs.changes.outputs.short_sha }}
+      #     repository-name: ${{ env.BACKEND_REPOSITORY_NAME }}
+      #     filter-tag: ${{ env.FILTER_TAG }}
+      #     region: ${{ env.AWS_REGION }}
+      #     branch: ${{ github.ref_name }}
+      #     tf-var-name: backend_app_container_image_tag
+      #     build-image: buildBackendAppImage
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-        if: env.buildBackendAppImage == 'true' || env.buildBackendProxyImage == 'true'
+      # - name: Set proxy TF vars
+      #   uses: ./.github/actions/set-infrastructure-tags/
+      #   with: 
+      #     short-sha: ${{ needs.changes.outputs.short_sha }}
+      #     repository-name: ${{ env.BACKEND_PROXY_REPOSITORY_NAME }}
+      #     filter-tag: ${{ env.FILTER_TAG }}
+      #     region: ${{ env.AWS_REGION }}
+      #     branch: ${{ github.ref_name }}
+      #     tf-var-name: backend_proxy_container_image_tag
+      #     build-image: buildBackendProxyImage
 
-      - name: Substitute proxy env variables
-        run: envsubst <  default.conf.tpl > default.conf
-        working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
-        if: env.buildBackendProxyImage == 'true'
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v1
+      #   if: env.buildBackendAppImage == 'true' || env.buildBackendProxyImage == 'true'
 
-      - name: Substitute app env variables
-        run: envsubst <  server.js.tpl > server.js
-        working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
-        if: env.buildBackendAppImage == 'true'
+      # - name: Substitute proxy env variables
+      #   run: envsubst <  default.conf.tpl > default.conf
+      #   working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
+      #   if: env.buildBackendProxyImage == 'true'
+
+      # - name: Substitute app env variables
+      #   run: envsubst <  server.js.tpl > server.js
+      #   working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
+      #   if: env.buildBackendAppImage == 'true'
       
-      - name: Building app image...
-        uses: docker/build-push-action@v2
-        with:
-          context: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
-          file: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/Dockerfile"
-          push: true
-          tags: | 
-            ${{ env.BACKEND_REPOSITORY_URL }}:latest
-            ${{ env.BACKEND_REPOSITORY_URL }}:${{ github.ref_name }}
-            ${{ env.BACKEND_REPOSITORY_URL }}:${{ needs.changes.outputs.short_sha }}
-        env:
-          BACKEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_REPOSITORY_NAME) }}
-        if: env.buildBackendAppImage == 'true'
+      # - name: Building app image...
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
+      #     file: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/Dockerfile"
+      #     push: true
+      #     tags: | 
+      #       ${{ env.BACKEND_REPOSITORY_URL }}:latest
+      #       ${{ env.BACKEND_REPOSITORY_URL }}:${{ github.ref_name }}
+      #       ${{ env.BACKEND_REPOSITORY_URL }}:${{ needs.changes.outputs.short_sha }}
+      #   env:
+      #     BACKEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_REPOSITORY_NAME) }}
+      #   if: env.buildBackendAppImage == 'true'
 
-      - name: Build proxy image...
-        uses: docker/build-push-action@v2
-        with:
-          context: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
-          file: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/Dockerfile"
-          push: true
-          tags: |
-            ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:latest
-            ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:${{ github.ref_name }}
-            ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:${{ needs.changes.outputs.short_sha }}
-        env:
-          BACKEND_PROXY_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_PROXY_REPOSITORY_NAME) }}
-        if: env.buildBackendProxyImage == 'true'
+      # - name: Build proxy image...
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
+      #     file: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/Dockerfile"
+      #     push: true
+      #     tags: |
+      #       ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:latest
+      #       ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:${{ github.ref_name }}
+      #       ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:${{ needs.changes.outputs.short_sha }}
+      #   env:
+      #     BACKEND_PROXY_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_PROXY_REPOSITORY_NAME) }}
+      #   if: env.buildBackendProxyImage == 'true'
 
-      - name: Setup terraform 
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_wrapper: false
+      # - name: Setup terraform 
+      #   uses: hashicorp/setup-terraform@v2
+      #   with:
+      #     terraform_wrapper: false
 
-      - name: Terraform init
-        run: terraform init
-        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+      # - name: Terraform init
+      #   run: terraform init
+      #   working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
 
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate -no-color
-        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+      # - name: Terraform Validate
+      #   id: validate
+      #   run: terraform validate -no-color
+      #   working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
 
-      - name: Terraform plan
-        run: terraform plan -no-color
-        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+      # - name: Terraform plan
+      #   run: terraform plan -no-color
+      #   working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
 
-      # - name: Terraform apply
-      #   working-directory: "./tier0/environments/dev"
-      #   run: terraform apply -auto-approve
+      # # - name: Terraform apply
+      # #   working-directory: "./tier0/environments/dev"
+      # #   run: terraform apply -auto-approve
 
   backend:
     name: Backend
