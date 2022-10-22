@@ -1,6 +1,5 @@
 name: "Routing"
 description: "Sets routing"
-inputs:
 runs:
   using: "composite"
   steps:
