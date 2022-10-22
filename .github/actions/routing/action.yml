@@ -24,3 +24,6 @@ runs:
       id: sha
       run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
       shell: bash
+outputs:
+  changed_directories: ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
+  short_sha: ${{ steps.sha.outputs.short }}

@@ -56,10 +56,6 @@ jobs:
 
       - name: Routing
         uses: ./.github/actions/routing
-
-    outputs:
-      changed_directories: ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
-      short_sha: ${{ steps.sha.outputs.short }}
       
   infrastructure:
     name: Infrastructure
