@@ -21,6 +21,7 @@ env:
   FILTER_TAG: latest
   PROXY_DIRECTORY: 'proxy'
   NODEJS_DIRECTORY: 'nodejs'
+  BACKEND_DIRECTORY: 'tier2'
 
 jobs:
   changes:
@@ -65,7 +66,7 @@ jobs:
     if: |
       always() &&
       needs.changes.result == 'success' &&
-      contains(needs.changes.outputs.changed_directories, "$(echo $INFRASTRUCTURE_DIRECTORY)")
+      contains(needs.changes.outputs.changed_directories, 'tier0')
     steps:
       - name: Download repository
         uses: actions/checkout@v3
@@ -106,19 +107,19 @@ jobs:
 
       - name: Substitute proxy env variables
         run: envsubst <  default.conf.tpl > default.conf
-        working-directory: './tier2/proxy/'
+        working-directory: "./${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
         if: env.buildBackendProxyImage == 'true'
 
       - name: Substitute app env variables
         run: envsubst <  server.js.tpl > server.js
-        working-directory: './tier2/nodejs/'
+        working-directory: "./${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
         if: env.buildBackendAppImage == 'true'
       
       - name: Building app image...
         uses: docker/build-push-action@v2
         with:
-          context: "./tier2/nodejs/"
-          file: "./tier2/nodejs/Dockerfile"
+          context: "./${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
+          file: "./${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/Dockerfile"
           push: true
           tags: | 
             ${{ env.BACKEND_REPOSITORY_URL }}:latest
@@ -131,8 +132,8 @@ jobs:
       - name: Build proxy image...
         uses: docker/build-push-action@v2
         with:
-          context: "./tier2/proxy"
-          file: "./tier2/proxy/Dockerfile"
+          context: "./${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
+          file: "./${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/Dockerfile"
           push: true
           tags: |
             ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:latest
@@ -149,16 +150,16 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: "./tier0/environments/dev/"
+        working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
 
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
-        working-directory: "./tier0/environments/dev/"
+        working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
 
       - name: Terraform plan
         run: terraform plan -no-color
-        working-directory: "./tier0/environments/dev/"
+        working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
 
       # - name: Terraform apply
       #   working-directory: "./tier0/environments/dev"
@@ -168,13 +169,11 @@ jobs:
     name: Backend
     needs: [changes, infrastructure]
     runs-on: ubuntu-latest
-    env:
-      BACKEND_DIRECTORY: 'tier2'
     if: |
       always() &&
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, env.BACKEND_DIRECTORY)
+      contains(needs.changes.outputs.changed_directories, 'tier2')
     steps:
 
       - name: Download repository
@@ -195,19 +194,19 @@ jobs:
 
       - name: Substitute proxy env variables
         run: envsubst <  default.conf.tpl > default.conf
-        working-directory: './tier2/proxy/'
+        working-directory: "./${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
         if: contains(needs.changes.outputs.changed_directories, 'proxy')
 
       - name: Substitute app env variables
         run: envsubst <  server.js.tpl > server.js
-        working-directory: './tier2/nodejs/'
+        working-directory: "./${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
         if: contains(needs.changes.outputs.changed_directories, 'nodejs')
 
       - name: Build image for proxy...
         uses: docker/build-push-action@v2
         with:
-          context: "./tier2/proxy"
-          file: "./tier2/proxy/Dockerfile"
+          context: "./${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
+          file: "./${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/Dockerfile"
           push: true
           tags: |
             ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:latest
@@ -220,8 +219,8 @@ jobs:
       - name: Build image for backend...
         uses: docker/build-push-action@v2
         with:
-          context: "./tier2/nodejs"
-          file: "./tier2/nodejs/Dockerfile"
+          context: "./${{ env.BACKEND_DIRECTORY}}/${{ env.NODEJS_DIRECTORY }}/"
+          file: "./${{ env.BACKEND_DIRECTORY}}/${{ env.NODEJS_DIRECTORY }}/Dockerfile"
           push: true
           tags: |
             ${{ env.BACKEND_REPOSITORY_URL }}:latest
@@ -258,26 +257,26 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: "./tier0/environments/dev/"
+        working-directory: "./${{ env.BACKEND_DIRECTORY }}/environments/dev/"
 
       - name: Terraform validate
         id: validate
         run: terraform validate -no-color
-        working-directory: "./tier0/environments/dev/"
+        working-directory: "./${{ env.BACKEND_DIRECTORY }}/environments/dev/"
 
       - name: Terraform plan
         run: terraform plan -no-color
         env:
             TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
             TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
-        working-directory: "./tier0/environments/dev/"
+        working-directory: "./${{ env.BACKEND_DIRECTORY }}/environments/dev/"
 
-      - name: Terraform apply
-        run: terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
-        env:
-            TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
-            TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
-        working-directory: "./tier0/environments/dev/"
+      # - name: Terraform apply
+      #   run: terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
+      #   env:
+      #       TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+      #       TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
+      #   working-directory: "./${{ env.BACKEND_DIRECTORY }}/environments/dev/"
 
   frontend:
     name: Frontend
