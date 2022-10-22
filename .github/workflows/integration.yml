@@ -366,8 +366,8 @@ jobs:
         run: echo ${{ env.CLOUDFRONT_ID }}
 
       - name: Invalidate Cache
-       uses: chetan/invalidate-cloudfront-action@v2
-       env:
+       `uses: chetan/invalidate-cloudfront-action@v2
+        env:
          DISTRIBUTION: ${{ env.CLOUDFRONT_ID }}
          PATHS: "/*"
          AWS_REGION: ${{ env.AWS_REGION }}
