@@ -100,7 +100,7 @@ jobs:
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
       (needs.backend.result == 'success' || needs.backend.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, 'tier1')
+      contains(needs.changes.outputs.changed_directories, 'front')
     runs-on: ubuntu-latest
     steps:
 
