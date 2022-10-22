@@ -20,16 +20,19 @@ runs:
       - name: Install dependencies
         run: npm ci
         working-directory: ${{ env.FRONTEND_DIRECTORY }}
+        shell: bash
       
       - name: Test
         run: npm test
         env:
           CI: true
         working-directory: ${{ env.FRONTEND_DIRECTORY }}
+        shell: bash
       
       - name: Generate build
         run: npm run build
         working-directory: ${{ env.FRONTEND_DIRECTORY }}
+        shell: bash
 
       - name: "Check if index.html exists..."
         id: check_files
@@ -43,6 +46,7 @@ runs:
           ls -alh ./build
           echo "./$FRONTEND_DIRECTORY/build/index.html is missing!"
           exit 1
+        shell: bash
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -54,6 +58,7 @@ runs:
       - name: Deploy to S3
         run: aws s3 sync "./build/" s3://artifacts1910 --dryrun --exclude docker --delete
         working-directory: ${{ env.FRONTEND_DIRECTORY }}
+        shell: bash
 
       - name: Setup terraform 
         uses: hashicorp/setup-terraform@v2
@@ -69,9 +74,7 @@ runs:
         run: |
           echo "CLOUDFRONT_ID=$(terraform output cloudfront_id | tr -d '\"')" >> "$GITHUB_ENV"
         working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
-
-      - name: Test
-        run: echo ${{ env.CLOUDFRONT_ID }}
+        shell: bash
 
       - name: Invalidate Cache
         uses: chetan/invalidate-cloudfront-action@v2
