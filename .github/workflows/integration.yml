@@ -59,10 +59,8 @@ jobs:
         uses: ./.github/actions/routing
 
     outputs:
-      changed_directories: 
-        value: ${{ steps.routing.outputs.changed_directories }}
-      short_sha: 
-        value: ${{ steps.routing.outputs.short_sha }}
+      changed_directories: ${{ steps.routing.outputs.changed_directories }}
+      short_sha: ${{ steps.routing.outputs.short_sha }}
       
   infrastructure:
     name: Infrastructure
