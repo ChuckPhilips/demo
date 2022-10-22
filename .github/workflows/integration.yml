@@ -20,8 +20,6 @@ env:
   APP_HOST: localhost
   FILTER_TAG: latest
   FRONTEND_DIRECTORY: 'tier1'
-  BACKEND_DIRECTORY: 'tier2'
-  INFRASTRUCTURE_DIRECTORY: 'tier0'
   PROXY_DIRECTORY: 'proxy'
   NODEJS_DIRECTORY: 'nodejs'
 
@@ -63,6 +61,8 @@ jobs:
     name: Infrastructure
     needs: changes
     runs-on: ubuntu-latest
+    env:
+      INFRASTRUCTURE_DIRECTORY: 'tier0'
     if: |
       always() &&
       needs.changes.result == 'success' &&
@@ -168,14 +168,14 @@ jobs:
   backend:
     name: Backend
     needs: [changes, infrastructure]
+    runs-on: ubuntu-latest
+    env:
+      BACKEND_DIRECTORY: 'tier2'
     if: |
       always() &&
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
       contains(needs.changes.outputs.changed_directories, ${{ env.BACKEND_DIRECTORY }})
-    runs-on: ubuntu-latest
-    env:
-      FILTER_TAG: latest
     steps:
 
       - name: Download repository
