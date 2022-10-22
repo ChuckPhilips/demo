@@ -21,8 +21,9 @@ env:
   FILTER_TAG: latest
   PROXY_DIRECTORY: 'proxy'
   NODEJS_DIRECTORY: 'nodejs'
-  BACKEND_DIRECTORY: 'tier2'
+  BACKEND_DIRECTORY: 'back'
   INFRASTRUCTURE_DIRECTORY: 'infra'
+  FRONTEND_DIRECTORY: "front"
 
 jobs:
   changes:
@@ -74,7 +75,7 @@ jobs:
       always() &&
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, 'tier2')
+      contains(needs.changes.outputs.changed_directories, 'back')
     steps:
 
       - name: Download repository
@@ -101,8 +102,6 @@ jobs:
       (needs.backend.result == 'success' || needs.backend.result == 'skipped') &&
       contains(needs.changes.outputs.changed_directories, 'tier1')
     runs-on: ubuntu-latest
-    env:
-      FRONTEND_DIRECTORY: "tier1"
     steps:
 
       - name: Download repository
