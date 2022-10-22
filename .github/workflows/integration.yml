@@ -30,10 +30,10 @@ jobs:
     runs-on: ubuntu-latest  # windows-latest | macos-latest
     steps:
 
-      # - name: Download repository...
-      #   uses: actions/checkout@v3
-      #   with:
-      #     fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+      - name: Download repository...
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
       # - name: Check changed directories...
       #   id: changed-files-dir-names
