@@ -47,7 +47,7 @@ runs:
           | jq '.imageDetails[].imageTags' \
           | jq \
           --arg BRANCH "${{ inputs.branch }}" \
-          --arg FILTER "${{ inputs.filter-tag }}}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
+          --arg FILTER "${{ inputs.filter-tag }}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
           | tr -d '"' \
           | tail -n1)
 
