@@ -45,6 +45,7 @@ jobs:
         uses: tj-actions/changed-files@v33
         with:
           json: "true"
+          dir_names: "true"
       
       - name: Show changed json
         run: echo ${{ steps.changed-fles-json.outputs.all_changed_and_modified_files}}
