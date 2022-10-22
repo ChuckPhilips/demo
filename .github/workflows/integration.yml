@@ -53,6 +53,9 @@ jobs:
     outputs:
       changed_directories: ${{ steps.routing.outputs.changed_directories }}
       short_sha: ${{ steps.routing.outputs.short_sha }}
+      infra_changed: ${{ steps.routing.outputs.infra_changed }}
+      back_changed: ${{ steps.routing.outputs.back_changed }}
+      front_changed: ${{ steps.routing.outputs.front_changed }}
       
   infrastructure:
     name: Infrastructure
