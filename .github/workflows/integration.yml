@@ -75,7 +75,8 @@ jobs:
       always() &&
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, 'back')
+      contains(needs.changes.outputs.changed_directories, 'back') &&
+      startsWith(needs.changes.outputs.changed_directories, 'back')
     steps:
 
       - name: Download repository
