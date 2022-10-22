@@ -30,29 +30,32 @@ jobs:
     runs-on: ubuntu-latest  # windows-latest | macos-latest
     steps:
 
-      - name: Download repository...
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+      # - name: Download repository...
+      #   uses: actions/checkout@v3
+      #   with:
+      #     fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
-      - name: Check changed directories...
-        id: changed-files-dir-names
-        uses: tj-actions/changed-files@v29.0.2
-        with:
-          dir_names: "true"
+      # - name: Check changed directories...
+      #   id: changed-files-dir-names
+      #   uses: tj-actions/changed-files@v29.0.2
+      #   with:
+      #     dir_names: "true"
 
-      - name: Show output
-        run: echo ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
+      # - name: Show output
+      #   run: echo ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
 
-      - name: List all changed directories...
-        run: |
-          for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
-            echo "$directory was changed"
-          done
+      # - name: List all changed directories...
+      #   run: |
+      #     for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
+      #       echo "$directory was changed"
+      #     done
 
-      - name: Get short commit id
-        id: sha
-        run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
+      # - name: Get short commit id
+      #   id: sha
+      #   run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
+
+      - name: Routing
+        uses: ./.github/actions/routing/
 
     outputs:
       changed_directories: ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}
