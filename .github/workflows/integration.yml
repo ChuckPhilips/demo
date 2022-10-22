@@ -55,7 +55,14 @@ jobs:
       #   run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
 
       - name: Routing
+        id: routing
         uses: ./.github/actions/routing
+
+  outputs:
+  changed_directories: 
+    value: ${{ steps.routing.outputs.changed_directories }}
+  short_sha: 
+    value: ${{ steps.routing.outputs.short_sha }}
       
   infrastructure:
     name: Infrastructure
