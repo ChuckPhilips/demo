@@ -48,7 +48,7 @@ runs:
     - name: Get short commit id
       id: sha
       #run: echo "::set-output name=short::$(git rev-parse --short HEAD)"
-      run: echo "{short}={$(git rev-parse --short HEAD)}" >> $GITHUB_OUTPUT
+      run: echo "short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       shell: bash
 
 outputs:
