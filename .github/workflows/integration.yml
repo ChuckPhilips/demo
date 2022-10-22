@@ -58,7 +58,7 @@ jobs:
     if: |
       always() &&
       needs.changes.result == 'success' &&
-      contains(needs.changes.outputs.changed_directories, 'infrastructure')
+      contains(needs.changes.outputs.changed_directories, 'tier0')
     steps:
       - name: Download repository
         uses: actions/checkout@v3
@@ -99,12 +99,12 @@ jobs:
 
       - name: Substitute proxy env variables
         run: envsubst <  default.conf.tpl > default.conf
-        working-directory: './backend/proxy/'
+        working-directory: './tier2/proxy/'
         if: env.buildBackendProxyImage == 'true'
 
       - name: Substitute app env variables
         run: envsubst <  server.js.tpl > server.js
-        working-directory: './backend/nodejs/'
+        working-directory: './tier2/nodejs/'
         if: env.buildBackendAppImage == 'true'
       
       - name: Building app image...
@@ -142,19 +142,19 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: "./infrastructure/environments/dev/"
+        working-directory: "./tier0/environments/dev/"
 
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
-        working-directory: "./infrastructure/environments/dev/"
+        working-directory: "./tier0/environments/dev/"
 
       - name: Terraform plan
         run: terraform plan -no-color
-        working-directory: "./infrastructure/environments/dev/"
+        working-directory: "./tier0/environments/dev/"
 
       # - name: Terraform apply
-      #   working-directory: "./infrastructure/environments/dev"
+      #   working-directory: "./tier0/environments/dev"
       #   run: terraform apply -auto-approve
 
   backend:
@@ -188,12 +188,12 @@ jobs:
 
       - name: Substitute proxy env variables
         run: envsubst <  default.conf.tpl > default.conf
-        working-directory: './backend/proxy/'
+        working-directory: './tier2/proxy/'
         if: contains(needs.changes.outputs.changed_directories, 'proxy')
 
       - name: Substitute app env variables
         run: envsubst <  server.js.tpl > server.js
-        working-directory: './backend/nodejs/'
+        working-directory: './tier2/nodejs/'
         if: contains(needs.changes.outputs.changed_directories, 'nodejs')
 
       - name: Build image for proxy...
@@ -251,40 +251,26 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: "./infrastructure/environments/dev/"
+        working-directory: "./tier0/environments/dev/"
 
       - name: Terraform validate
         id: validate
         run: terraform validate -no-color
-        working-directory: "./infrastructure/environments/dev/"
+        working-directory: "./tier0/environments/dev/"
 
       - name: Terraform plan
         run: terraform plan -no-color
         env:
             TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
             TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
-        working-directory: "./infrastructure/environments/dev/"
+        working-directory: "./tier0/environments/dev/"
 
       - name: Terraform apply
         run: terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
         env:
             TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
             TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
-        working-directory: "./infrastructure/environments/dev/"
-
-      # - name: Terraform apply
-      #   working-directory: "./infrastructure/environments/dev"
-      #   run: terraform apply -auto-approve
-
-      # - name: Update backend...
-      #   working-directory: "./infrastructure/environments/dev/"
-      #   env:
-      #     TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
-      #     TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
-      #   run: |
-      #     echo "Updating backend image..."
-      #     terraform init
-      #     terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
+        working-directory: "./tier0/environments/dev/"
 
   frontend:
     name: Frontend
@@ -294,7 +280,7 @@ jobs:
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
       (needs.backend.result == 'success' || needs.backend.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, 'frontend')
+      contains(needs.changes.outputs.changed_directories, 'tier1')
     runs-on: ubuntu-latest
     env:
       FRONTEND_DIRECTORY: "frontend"
@@ -355,12 +341,12 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: "./infrastructure/environments/dev/"
+        working-directory: "./tier0/environments/dev/"
     
       - name: Call terraform output
         run: |
           echo "CLOUDFRONT_ID=$(terraform output cloudfront_id | tr -d '\"')" >> "$GITHUB_ENV"
-        working-directory: "./infrastructure/environments/dev/"
+        working-directory: "./tier0/environments/dev/"
 
       - name: Test
         run: echo ${{ env.CLOUDFRONT_ID }}

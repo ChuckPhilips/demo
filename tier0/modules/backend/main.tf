@@ -93,3 +93,4 @@ resource "aws_ecs_service" "api" {
     container_port   = var.proxy_container_port_in
   }
 }
+
