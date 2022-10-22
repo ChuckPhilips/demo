@@ -14,36 +14,60 @@ runs:
       shell: bash
 
     - name: List all changed directories...
+      id: analysis
       run: |
         for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
-          echo "$directory changed"
-        done
-      shell: bash
-
-    - name: Analysis
-      id: analysis
-      shell: bash
-      run: |
-          if [[ ${{ contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infra') }} == true ]]
+          
+          echo "$directory" | grep -E "^infra" 2>&1 > /dev/null
+          if [[ $? -eq 0 ]]
           then
             echo "infra_changed=true" >> $GITHUB_OUTPUT
           else
             echo "infra_changed=false" >> $GITHUB_OUTPUT
           fi
 
-          if [[ ${{ contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'back') }} == true ]]
+          echo "$directory" | grep -E "^back" 2>&1 > /dev/null
+          if [[ $? -q 0 ]]
           then
             echo "back_changed=true" >> $GITHUB_OUTPUT
           else
             echo "back_changed=false" >> $GITHUB_OUTPUT
           fi
 
-          if [[ ${{ contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'front') }} == true ]]
+          echo "$directory" | grep -E "^front" 2>&1 > /dev/null
+          if [[ $? -q 0 ]]
           then
             echo "front_changed=true" >> $GITHUB_OUTPUT
           else
             echo "front_changed=false" >> $GITHUB_OUTPUT
           fi
+        done
+      shell: bash
+
+    # - name: Analysis
+    #   id: analysis
+    #   shell: bash
+    #   run: |
+    #       if [[ ${{ contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'infra') }} == true ]]
+    #       then
+    #         echo "infra_changed=true" >> $GITHUB_OUTPUT
+    #       else
+    #         echo "infra_changed=false" >> $GITHUB_OUTPUT
+    #       fi
+
+    #       if [[ ${{ contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'back') }} == true ]]
+    #       then
+    #         echo "back_changed=true" >> $GITHUB_OUTPUT
+    #       else
+    #         echo "back_changed=false" >> $GITHUB_OUTPUT
+    #       fi
+
+    #       if [[ ${{ contains(steps.changed-files-dir-names.outputs.all_changed_and_modified_files, 'front') }} == true ]]
+    #       then
+    #         echo "front_changed=true" >> $GITHUB_OUTPUT
+    #       else
+    #         echo "front_changed=false" >> $GITHUB_OUTPUT
+    #       fi
 
     - name: Get short commit id
       id: sha
