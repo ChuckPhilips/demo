@@ -92,13 +92,13 @@ runs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
 
       - name: Terraform validate
         id: validate
         run: terraform validate -no-color
-        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
 
       - name: Terraform plan
@@ -106,7 +106,7 @@ runs:
         env:
             TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
             TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
-        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
 
       # - name: Terraform apply
@@ -114,5 +114,5 @@ runs:
       #   env:
       #       TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
       #       TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
-      #   working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+      #   working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
       #   shell: bash

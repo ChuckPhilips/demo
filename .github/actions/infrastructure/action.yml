@@ -91,21 +91,21 @@ runs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
 
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
-        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
 
       - name: Terraform plan
         run: terraform plan -no-color
-        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
 
       # - name: Terraform apply
-      #   working-directory: "./tier0/environments/dev"
+      #   working-directory: "./tier0/environments/${{ github.ref_name }}"
       #   run: terraform apply -auto-approve
       #   shell: bash
