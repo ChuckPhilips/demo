@@ -110,8 +110,8 @@ jobs:
       - name: Building app image...
         uses: docker/build-push-action@v2
         with:
-          context: "./backend/nodejs/"
-          file: "./backend/nodejs/Dockerfile"
+          context: "./tier2/nodejs/"
+          file: "./tier2/nodejs/Dockerfile"
           push: true
           tags: | 
             ${{ env.BACKEND_REPOSITORY_URL }}:latest
@@ -124,8 +124,8 @@ jobs:
       - name: Build proxy image...
         uses: docker/build-push-action@v2
         with:
-          context: "./backend/proxy"
-          file: "./backend/proxy/Dockerfile"
+          context: "./tier2/proxy"
+          file: "./tier2/proxy/Dockerfile"
           push: true
           tags: |
             ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:latest
@@ -164,7 +164,7 @@ jobs:
       always() &&
       needs.changes.result == 'success' &&
       (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped') &&
-      contains(needs.changes.outputs.changed_directories, 'backend')
+      contains(needs.changes.outputs.changed_directories, 'tier2')
     runs-on: ubuntu-latest
     env:
       FILTER_TAG: latest
@@ -199,8 +199,8 @@ jobs:
       - name: Build image for proxy...
         uses: docker/build-push-action@v2
         with:
-          context: "./backend/proxy"
-          file: "./backend/proxy/Dockerfile"
+          context: "./tier2/proxy"
+          file: "./tier2/proxy/Dockerfile"
           push: true
           tags: |
             ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:latest
@@ -213,8 +213,8 @@ jobs:
       - name: Build image for backend...
         uses: docker/build-push-action@v2
         with:
-          context: "./backend/nodejs"
-          file: "./backend/nodejs/Dockerfile"
+          context: "./tier2/nodejs"
+          file: "./tier2/nodejs/Dockerfile"
           push: true
           tags: |
             ${{ env.BACKEND_REPOSITORY_URL }}:latest
