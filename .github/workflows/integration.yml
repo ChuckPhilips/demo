@@ -238,6 +238,7 @@ jobs:
           region: ${{ env.AWS_REGION }}
           branch: ${{ github.ref_name }}
           changed: ${{ contains(needs.changes.outputs.changed_directories, 'proxy') }}
+          tf-var-name: backend_proxy_container_image_tag
 
       - name: Set app tag
         uses: ./.github/actions/set-backend-tags/
@@ -248,6 +249,7 @@ jobs:
           region: ${{ env.AWS_REGION }}
           branch: ${{ github.ref_name }}
           changed: ${{ contains(needs.changes.outputs.changed_directories, 'nodejs') }}
+          tf-var-name: backend_app_container_image_tag
 
       - name: Setup terraform 
         uses: hashicorp/setup-terraform@v2

@@ -18,6 +18,9 @@ inputs:
   branch:
     required: true
     description: "Images filter"
+  tf-var-name:
+    required: true
+    description: "TF var name"
   changed:
     required: true
     description: "Check if image has been changed"
@@ -30,7 +33,8 @@ runs:
         if [[ ${{ inputs.changed }} == true ]]
         then
           echo "Set tag: ${{ inputs.short_sha }} to Terraform variables since new image will be built..."
-          echo "TF_VAR_backend_proxy_container_image_tag=${{ inputs.short-sha }}" >> "$GITHUB_ENV"
+          echo "TF_VAR_${{inputs.tf-var-name}}=${{ inputs.short-sha }}"
+          echo "TF_VAR_${{inputs.tf-var-name}}=${{ inputs.short-sha }}" >> "$GITHUB_ENV"
         else 
           echo "Getting tag from latest image..."
 
@@ -47,8 +51,7 @@ runs:
           | tr -d '"' \
           | tail -n1)
 
-          echo "Image tag is: ${TAG}"
           echo "Add tag: ${TAG} to Terraform environment variables..."
-          echo "TF_VAR_backend_proxy_container_image_tag=${TAG}"
-          echo "TF_VAR_backend_proxy_container_image_tag=${TAG}" >> "$GITHUB_ENV"
+          echo "TF_VAR_${{inputs.tf-var-name}}=${TAG}"
+          echo "TF_VAR_${{inputs.tf-var-name}}=${TAG}" >> "$GITHUB_ENV"
         fi
