@@ -21,6 +21,9 @@ inputs:
   tf-var-name:
     required: true
     description: "TF var name for image"
+  build-image:
+    required: true
+    description: "Variable name to or not to build an image"
 runs:
   using: "composite"
   steps:
@@ -60,16 +63,16 @@ runs:
             if [[ $(echo "${TAG}" | wc -l) -gt 0 ]]
             then
               echo "Image already exists, tag is ${TAG}"
-              echo "buildBackendProxyImage=false" >> "$GITHUB_ENV"
+              echo "${{ inputs.build-image }}=false" >> "$GITHUB_ENV"
               echo "Set tag ${TAG} in Terraform environment variables..."
-              echo "TF_VAR_${{inputs.tf-var-name}}=${TAG}" >> "$GITHUB_ENV"
+              echo "TF_VAR_${{ inputs.tf-var-name }}=${TAG}" >> "$GITHUB_ENV"
             else
               echo "Latest tag does not exits, something wrong, exiting..."
               exit 1
             fi
           else
             echo "Proxy image does not exists, will build one..."
-            echo "buildBackendProxyImage=true" >> "$GITHUB_ENV"
+            echo "${{ inputs.build-image }}=true" >> "$GITHUB_ENV"
             echo "Set tag ${{ inputs.short-sha }} in Terraform environment variables..."
             echo "TF_VAR_${{inputs.tf-var-name}}=${{ inputs.short-sha }}" >> "$GITHUB_ENV"
           fi
