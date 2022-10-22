@@ -30,14 +30,14 @@ runs:
     - name: Set image tag
       shell: bash
       run: |
-          echo "Getting backend proxy images ids..."
+          echo "Getting backend ${{ inputs.repository-name }} images ids..."
           
           BACKEND_PROXY_IMAGES_IDS=$(aws ecr list-images \
           --repository-name "${{ inputs.repository-name }}" \
           --region "${{ inputs.region }}" \
           | jq '.imageIds | length')
           
-          echo "Backend proxy images ids: ${BACKEND_PROXY_IMAGES_IDS}"
+          echo "Backend ${{ inputs.repository-name }} images ids: ${BACKEND_PROXY_IMAGES_IDS}"
 
           if [[ ${BACKEND_PROXY_IMAGES_IDS} -gt 0 ]]
           then

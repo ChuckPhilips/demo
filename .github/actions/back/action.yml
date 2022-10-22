@@ -64,7 +64,7 @@ runs:
       - name: Set proxy tag
         uses: ./.github/actions/set-backend-tags/
         with: 
-          short-sha: ${{ needs.changes.outputs.short_sha }}
+          short-sha: ${{ inputs.short-sha }}
           repository-name: ${{ env.BACKEND_PROXY_REPOSITORY_NAME }}
           filter-tag: ${{ env.FILTER_TAG }}
           region: ${{ env.AWS_REGION }}
@@ -75,7 +75,7 @@ runs:
       - name: Set app tag
         uses: ./.github/actions/set-backend-tags/
         with: 
-          short-sha: ${{ needs.changes.outputs.short_sha }}
+          short-sha: ${{ inputs.short-sha }}
           repository-name: ${{ env.BACKEND_REPOSITORY_NAME }}
           filter-tag: ${{ env.FILTER_TAG }}
           region: ${{ env.AWS_REGION }}
