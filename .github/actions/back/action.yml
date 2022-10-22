@@ -1,0 +1,112 @@
+name: "Backend"
+description: "Sets backend"
+inputs:
+  aws-access-key-id:
+    required: true
+  aws-secret-access-key:
+    required: true
+  short-sha:
+    required: true
+  changed-directories:
+    required: true
+runs:
+  using: "composite"
+  steps:      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ inputs.aws-access-key-id }}
+          aws-secret-access-key: ${{ inputs.aws-secret-access-key}}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Substitute proxy env variables
+        run: envsubst <  default.conf.tpl > default.conf
+        working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
+        if: contains(inputs.changed-directories, 'proxy')
+
+      - name: Substitute app env variables
+        run: envsubst <  server.js.tpl > server.js
+        working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
+        if: contains(inputs.changed-directories, 'nodejs')
+
+      - name: Build image for proxy...
+        uses: docker/build-push-action@v2
+        with:
+          context: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
+          file: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/Dockerfile"
+          push: true
+          tags: |
+            ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:latest
+            ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:${{ github.ref_name }}
+            ${{ env.BACKEND_PROXY_REPOSITORY_URL }}:${{ inputs.short-sha }}
+        env:
+          BACKEND_PROXY_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_PROXY_REPOSITORY_NAME) }}
+        if: contains(inputs.changed-directories, 'proxy')
+
+      - name: Build image for backend...
+        uses: docker/build-push-action@v2
+        with:
+          context: "${{ env.BACKEND_DIRECTORY}}/${{ env.NODEJS_DIRECTORY }}/"
+          file: "${{ env.BACKEND_DIRECTORY}}/${{ env.NODEJS_DIRECTORY }}/Dockerfile"
+          push: true
+          tags: |
+            ${{ env.BACKEND_REPOSITORY_URL }}:latest
+            ${{ env.BACKEND_REPOSITORY_URL }}:${{ github.ref_name }}
+            ${{ env.BACKEND_REPOSITORY_URL }}:${{ inputs.short-sha }}
+        env:
+          BACKEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_REPOSITORY_NAME) }}
+        if: contains(inputs.changed-directories, 'nodejs')
+
+      - name: Set proxy tag
+        uses: ./.github/actions/set-backend-tags/
+        with: 
+          short-sha: ${{ needs.changes.outputs.short_sha }}
+          repository-name: ${{ env.BACKEND_PROXY_REPOSITORY_NAME }}
+          filter-tag: ${{ env.FILTER_TAG }}
+          region: ${{ env.AWS_REGION }}
+          branch: ${{ github.ref_name }}
+          changed: ${{ contains(inputs.changed-directories, 'proxy') }}
+          tf-var-name: backend_proxy_container_image_tag
+
+      - name: Set app tag
+        uses: ./.github/actions/set-backend-tags/
+        with: 
+          short-sha: ${{ needs.changes.outputs.short_sha }}
+          repository-name: ${{ env.BACKEND_REPOSITORY_NAME }}
+          filter-tag: ${{ env.FILTER_TAG }}
+          region: ${{ env.AWS_REGION }}
+          branch: ${{ github.ref_name }}
+          changed: ${{ contains(inputs.changed-directories, 'nodejs') }}
+          tf-var-name: backend_app_container_image_tag
+
+      - name: Setup terraform 
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform init
+        run: terraform init
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+
+      - name: Terraform validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+
+      - name: Terraform plan
+        run: terraform plan -no-color
+        env:
+            TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+            TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"
+
+      # - name: Terraform apply
+      #   run: terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
+      #   env:
+      #       TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+      #       TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
+      #   working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/dev/"

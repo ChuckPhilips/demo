@@ -1,5 +1,5 @@
-name: "Backend"
-description: "Sets backend"
+name: "Infrastructure"
+description: "Sets infra"
 inputs:
   aws-access-key-id:
     required: true
