@@ -33,18 +33,21 @@ runs:
           echo "TF_VAR_backend_proxy_container_image_tag=${{ inputs.short_sha }}" >> "$GITHUB_ENV"
         else 
           echo "Getting tag from latest image..."
-          backend_proxy_images=$(aws ecr describe-images \
+
+          BACKEND_PROXY_IMAGES=$(aws ecr describe-images \
           --repository-name "${{ inputs.repository-name }}" \
           --image-ids imageTag="${{ inputs.filter-tag }}" \
           --region "${{ inputs.region }}")
-          tag=$(echo "$backend_proxy_images" \
+          
+          TAG=$(echo "$BACKEND_PROXY_IMAGES" \
           | jq '.imageDetails[].imageTags' \
           | jq \
           --arg BRANCH "${{ inputs.branch }}" \
           --arg FILTER "${{ inputs.filter-tag }}}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
           | tr -d '"' \
           | tail -n1)
-          echo "Image tag is: ${tag}"
-          echo "Add tag: ${tag} to Terraform environment variables..."
-          echo "TF_VAR_backend_proxy_container_image_tag=${tag}" >> "$GITHUB_ENV"
+          echo "Image tag is: ${TAG}"
+          echo "Add tag: ${TAG} to Terraform environment variables..."
+          echo "TF_VAR_backend_proxy_container_image_tag=${TAG}"
+          echo "TF_VAR_backend_proxy_container_image_tag=${TAG}" >> "$GITHUB_ENV"
         fi
