@@ -30,7 +30,7 @@ runs:
         if [[ ${{ inputs.changed }} == true ]]
         then
           echo "Set tag: ${{ inputs.short_sha }} to Terraform variables since new image will be built..."
-          echo "TF_VAR_backend_proxy_container_image_tag=${{ inputs.short_sha }}" >> "$GITHUB_ENV"
+          echo "TF_VAR_backend_proxy_container_image_tag=${{ inputs.short-sha }}" >> "$GITHUB_ENV"
         else 
           echo "Getting tag from latest image..."
 
@@ -46,7 +46,7 @@ runs:
           --arg FILTER "${{ inputs.filter-tag }}}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
           | tr -d '"' \
           | tail -n1)
-          
+
           echo "Image tag is: ${TAG}"
           echo "Add tag: ${TAG} to Terraform environment variables..."
           echo "TF_VAR_backend_proxy_container_image_tag=${TAG}"
