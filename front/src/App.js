@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Users } from "./users";
 import "./App.css";
 import Table from "./Table";
 import axios from "axios";
