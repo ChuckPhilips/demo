@@ -30,30 +30,29 @@ runs:
     - name: Set image tag
       shell: bash
       run: |
-
-          echo "Getting images from repository: ${{ inputs.repository-name }}"
+          echo "Getting tags from repository: ${{ inputs.repository-name }}"
           
-          IMAGES_IDS=$(aws ecr list-images \
+          TAGS_COUNT=$(aws ecr list-images \
           --repository-name "${{ inputs.repository-name }}" \
           --region "${{ inputs.region }}" \
           | jq '.imageIds | length')
           
-          echo "Images ids: ${IMAGES_IDS}"
+          echo "Number of tags is: ${TAGS_COUNT}"
 
-          if [[ ${IMAGES_IDS} -gt 0 ]]
+          if [[ ${TAGS_COUNT} -gt 0 ]]
           then
-            echo "Some images already exist, getting them by tag: ${{ inputs.filter-tag }}"
+            echo "Some images already exist, filter them by tag: ${{ inputs.filter-tag }}."
             
-            IMAGES=$(aws ecr describe-images \
+            IMAGE=$(aws ecr describe-images \
             --repository-name "${{ inputs.repository-name }}" \
             --image-ids imageTag="${{ inputs.filter-tag }}" \
             --region "${{ inputs.region }}")
             
-            echo "Images are: ${IMAGES}"
-            
-            echo "Getting tag from latest image..."
+            echo "Image is: ${IMAGE}"
 
-            TAG=$(echo "${IMAGES}" \
+            echo "Getting commit tag."
+
+            TAG=$(echo "${IMAGE}" \
             | jq '.imageDetails[].imageTags' \
             | jq \
             --arg BRANCH "${{ inputs.branch }}" \
@@ -64,17 +63,15 @@ runs:
 
             if [[ $(echo "${TAG}" | wc -l) -gt 0 ]]
             then
-              echo "Image already exists, tag is ${TAG}"
-              echo "${{ inputs.build-image }}=false" >> "$GITHUB_ENV"
-              echo "Set tag ${TAG} in Terraform environment variables..."
-              echo "TF_VAR_${{ inputs.tf-var-name }}=${TAG}" >> "$GITHUB_ENV"
+              echo "Commit tag is ${TAG}."
+              echo "${{ inputs.build-image }}=false" | tee -a "$GITHUB_ENV"
+              echo "TF_VAR_${{ inputs.tf-var-name }}=${TAG}" | tee -a "$GITHUB_ENV"
             else
               echo "Latest tag does not exits, something wrong, exiting..."
               exit 1
             fi
           else
-            echo "Proxy image does not exists, will build one..."
-            echo "${{ inputs.build-image }}=true" >> "$GITHUB_ENV"
-            echo "Set tag ${{ inputs.short-sha }} in Terraform environment variables..."
-            echo "TF_VAR_${{inputs.tf-var-name}}=${{ inputs.short-sha }}" >> "$GITHUB_ENV"
+            echo "There are no images in repository: ${{ inputs.repository-name }}, will build one."
+            echo "${{ inputs.build-image }}=true" | tee -a "$GITHUB_ENV"
+            echo "TF_VAR_${{inputs.tf-var-name}}=${{ inputs.short-sha }}" | tee -a "$GITHUB_ENV"
           fi
