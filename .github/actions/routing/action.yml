@@ -20,23 +20,23 @@ runs:
           
           if [[ $(echo "$directory" | grep -cE "^infra") -gt 0 ]]
           then
-            echo "infra_changed=true" >> $GITHUB_OUTPUT
+            echo "infra_changed=true" | tee -a "$GITHUB_OUTPUT"
           else
-            echo "infra_changed=false" >> $GITHUB_OUTPUT
+            echo "infra_changed=false" | tee -a "$GITHUB_OUTPUT"
           fi
 
           if [[ $(echo "$directory" | grep -cE "^back") -gt 0 ]]
           then
-            echo "back_changed=true" >> $GITHUB_OUTPUT
+            echo "back_changed=true" | tee -a "$GITHUB_OUTPUT"
           else
-            echo "back_changed=false" >> $GITHUB_OUTPUT
+            echo "back_changed=false" | tee -a "$GITHUB_OUTPUT"
           fi
 
           if [[ $(echo "$directory" | grep -cE "^front") -gt 0 ]]
           then
-            echo "front_changed=true" >> $GITHUB_OUTPUT
+            echo "front_changed=true" | tee -a "$GITHUB_OUTPUT"
           else
-            echo "front_changed=false" >> $GITHUB_OUTPUT
+            echo "front_changed=false" | tee -a "$GITHUB_OUTPUT"
           fi
 
         done
@@ -44,7 +44,7 @@ runs:
 
     - name: Get short commit id
       id: sha
-      run: echo "short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      run: echo "short=$(git rev-parse --short HEAD)" | tee -a "$GITHUB_OUTPUT"
       shell: bash
 
 outputs:
