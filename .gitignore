@@ -39,3 +39,6 @@ terraform.rc
 
 #NodeJS
 node_modules
+
+#React
+build
