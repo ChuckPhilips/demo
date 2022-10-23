@@ -22,12 +22,12 @@ runs:
         working-directory: ${{ env.FRONTEND_DIRECTORY }}
         shell: bash
       
-      - name: Test
-        run: npm test
-        env:
-          CI: true
-        working-directory: ${{ env.FRONTEND_DIRECTORY }}
-        shell: bash
+      # - name: Test
+      #   run: npm test
+      #   env:
+      #     CI: true
+      #   working-directory: ${{ env.FRONTEND_DIRECTORY }}
+      #   shell: bash
       
       - name: Generate build
         run: npm run build
