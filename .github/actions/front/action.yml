@@ -55,11 +55,6 @@ runs:
           aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy to S3
-        run: aws s3 sync "./build/" s3://artifacts1910 --dryrun --exclude docker --delete
-        working-directory: ${{ env.FRONTEND_DIRECTORY }}
-        shell: bash
-
       - name: Setup terraform 
         uses: hashicorp/setup-terraform@v2
         with:
@@ -69,8 +64,19 @@ runs:
         run: terraform init
         working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
+
+      - name: Get frontend bucket name
+        run: |
+          echo "FRONTEND_BUCKET_NAME=$(terraform output frontend_bucket_name | tr -d '\"')" >> "$GITHUB_ENV"
+        working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
+        shell: bash
+
+      - name: Deploy to S3
+        run: aws s3 sync "./build/" s3://${{ env.FRONTEND_BUCKET_NAME }} --dryrun --exclude docker --delete
+        working-directory: ${{ env.FRONTEND_DIRECTORY }}
+        shell: bash
     
-      - name: Call terraform output
+      - name: Get cloudfront id
         run: |
           echo "CLOUDFRONT_ID=$(terraform output cloudfront_id | tr -d '\"')" >> "$GITHUB_ENV"
         working-directory: "./${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
