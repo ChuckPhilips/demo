@@ -115,7 +115,6 @@ module "frontend" {
   postfix_in = "dev"
 }
 
-
 output "cloudfront_id" {
   value = module.frontend.cloudfront_id
 }
