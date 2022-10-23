@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Users } from "./users";
 import "./App.css";
-import Table from "./Table";
 
 //////////////////////BASIC SEARCH
 
