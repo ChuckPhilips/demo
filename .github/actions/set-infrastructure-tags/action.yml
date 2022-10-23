@@ -50,8 +50,6 @@ runs:
             
             echo "Image is: ${IMAGE}"
 
-            echo "Getting commit tag."
-
             TAG=$(echo "${IMAGE}" \
             | jq '.imageDetails[].imageTags' \
             | jq \

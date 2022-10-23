@@ -32,18 +32,16 @@ runs:
       run: |
         if [[ ${{ inputs.changed }} == true ]]
         then
-          echo "Set tag: ${{ inputs.short_sha }} to Terraform variables since new image will be built..."
-          echo "TF_VAR_${{inputs.tf-var-name}}=${{ inputs.short-sha }}"
-          echo "TF_VAR_${{inputs.tf-var-name}}=${{ inputs.short-sha }}" >> "$GITHUB_ENV"
+          echo "TF_VAR_${{inputs.tf-var-name}}=${{ inputs.short-sha }}" | tee -a "$GITHUB_ENV"
         else 
-          echo "Getting tag from latest image..."
+          echo "Getting tags from latest image..."
 
-          BACKEND_PROXY_IMAGES=$(aws ecr describe-images \
+          TAGS=$(aws ecr describe-images \
           --repository-name "${{ inputs.repository-name }}" \
           --image-ids imageTag="${{ inputs.filter-tag }}" \
           --region "${{ inputs.region }}")
           
-          TAG=$(echo "$BACKEND_PROXY_IMAGES" \
+          TAG=$(echo "$TAGS" \
           | jq '.imageDetails[].imageTags' \
           | jq \
           --arg BRANCH "${{ inputs.branch }}" \
@@ -52,7 +50,5 @@ runs:
           | tr -d '"' \
           | tail -n1)
 
-          echo "Add tag: ${TAG} to Terraform environment variables..."
-          echo "TF_VAR_${{inputs.tf-var-name}}=${TAG}"
-          echo "TF_VAR_${{inputs.tf-var-name}}=${TAG}" >> "$GITHUB_ENV"
+          echo "TF_VAR_${{inputs.tf-var-name}}=${TAG}" | tee -a "$GITHUB_ENV"
         fi
