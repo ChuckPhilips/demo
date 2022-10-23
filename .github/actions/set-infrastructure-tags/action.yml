@@ -30,33 +30,35 @@ runs:
     - name: Set image tag
       shell: bash
       run: |
-          echo "Getting backend ${{ inputs.repository-name }} images ids..."
+
+          echo "Getting images from repository: ${{ inputs.repository-name }}"
           
-          BACKEND_PROXY_IMAGES_IDS=$(aws ecr list-images \
+          IMAGES_IDS=$(aws ecr list-images \
           --repository-name "${{ inputs.repository-name }}" \
           --region "${{ inputs.region }}" \
           | jq '.imageIds | length')
           
-          echo "Backend ${{ inputs.repository-name }} images ids: ${BACKEND_PROXY_IMAGES_IDS}"
+          echo "Images ids: ${IMAGES_IDS}"
 
-          if [[ ${BACKEND_PROXY_IMAGES_IDS} -gt 0 ]]
+          if [[ ${IMAGES_IDS} -gt 0 ]]
           then
             echo "Some images already exist, getting them by tag: ${{ inputs.filter-tag }}"
             
-            BACKEND_PROXY_IMAGES=$(aws ecr describe-images \
+            IMAGES=$(aws ecr describe-images \
             --repository-name "${{ inputs.repository-name }}" \
             --image-ids imageTag="${{ inputs.filter-tag }}" \
             --region "${{ inputs.region }}")
             
-            echo "Images are: ${BACKEND_PROXY_IMAGES}"
+            echo "Images are: ${IMAGES}"
             
             echo "Getting tag from latest image..."
 
-            TAG=$(echo "${BACKEND_PROXY_IMAGES}" \
+            TAG=$(echo "${IMAGES}" \
             | jq '.imageDetails[].imageTags' \
             | jq \
             --arg BRANCH "${{ inputs.branch }}" \
-            --arg FILTER "${{ inputs.filter-tag }}" 'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
+            --arg FILTER "${{ inputs.filter-tag }}" \
+            'del(.[] | select(. == $BRANCH or . == $FILTER))[]' \
             | tr -d '"' \
             | tail -n1)
 
