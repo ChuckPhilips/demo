@@ -72,7 +72,7 @@ runs:
         shell: bash
 
       - name: Deploy to S3
-        run: aws s3 sync "./build/" s3://${{ env.FRONTEND_BUCKET_NAME }} --dryrun --exclude docker --delete
+        run: aws s3 sync "./build/" s3://${{ env.FRONTEND_BUCKET_NAME }} --exclude docker --delete
         working-directory: ${{ env.FRONTEND_DIRECTORY }}
         shell: bash
     
