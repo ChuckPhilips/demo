@@ -104,7 +104,6 @@ resource "aws_route53_record" "backend" {
   records = [aws_lb.main.dns_name]
 }
 
-
 resource "aws_acm_certificate" "backend" {
   domain_name       = aws_route53_record.backend.fqdn
   validation_method = "DNS"

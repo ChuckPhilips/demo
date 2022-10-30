@@ -1,33 +1,3 @@
-variable "region" {
-  description = "Region."
-  default     = "us-east-2"
-}
-
-variable "cidr_block" {
-  description = "VPC cidr block."
-  default     = "172.18.0.0/16"
-}
-
-variable "environment" {
-  type        = string
-  description = "Environment name."
-  default     = "dev"
-}
-
-variable "backend_app_container_port" {
-  default = 8080
-}
-
-variable "backend_app_container_image_tag" {}
-
-variable "backend_proxy_container_port" {
-  default = 80
-}
-
-variable "backend_proxy_container_image_tag" {
-  default = "latest"
-}
-
 terraform {
   backend "s3" {
     bucket         = "fcuic-infrastructure-lock"
@@ -43,26 +13,6 @@ terraform {
     }
   }
 }
-
-provider "aws" {
-  region = var.region
-  default_tags {
-    tags = local.tags
-  }
-}
-
-data "aws_region" "current" {}
-data "aws_caller_identity" "current" {}
-data "aws_availability_zones" "available" {}
-data "aws_elb_service_account" "current" {}
-
-variable "global_tags" {
-  type = map(any)
-  default = {
-    "Maintainer" = "Filip"
-  }
-}
-
 
 locals {
   postfix         = "${var.environment}-${data.aws_caller_identity.current.account_id}"
@@ -118,13 +68,4 @@ module "loadbalancer" {
 module "frontend" {
   source     = "../../modules/frontend"
   postfix_in = "dev"
-}
-
-
-output "cloudfront_id" {
-  value = module.frontend.cloudfront_id
-}
-
-output "frontend_bucket_name" {
-  value = module.frontend.bucket_name
 }
