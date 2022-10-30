@@ -76,20 +76,25 @@ locals {
   )
 }
 
-#module "vpc" {
-#  source        = "../../modules/vpc"
-#  cidr_block_in = var.cidr_block
-#  postfix_in    = "dev"
-#}
-#
+module "account" {
+  source = "../../modules/account"
+}
 
-#module "loadbalancer" {
-#  source                = "../../modules/loadbalancer"
-#  vpc_id_in             = module.vpc.id
-#  postfix_in            = "dev"
-#  subnets_in            = module.vpc.public_subnets_ids
-#  backend_proxy_port_in = var.backend_proxy_container_port
-#}
+module "vpc" {
+ source        = "../../modules/vpc"
+ cidr_block_in = var.cidr_block
+ postfix_in    = "dev"
+}
+
+
+module "loadbalancer" {
+ source                = "../../modules/loadbalancer"
+ vpc_id_in             = module.vpc.id
+ postfix_in            = "dev"
+ subnets_in            = module.vpc.public_subnets_ids
+ backend_proxy_port_in = var.backend_proxy_container_port
+ dns_zone_id_in           = module.account.zone_id
+}
 
 #module "ecs" {
 #  source = "../../modules/ecs"
