@@ -48,25 +48,26 @@ module "loadbalancer" {
   environment_name_in   = var.environment_name
 }
 
-#module "ecs" {
-#  source = "../../modules/ecs"
-#  postfix_in = var.environment_name
-#}
+module "ecs" {
+  source              = "../../modules/ecs"
+  environment_name_in = var.environment_name
+}
 
-#module "backend" {
-#  source                   = "../../modules/backend"
-#  ecs_name_in                = module.ecs.name
-#  postfix_in               = var.envionment_name
-#  app_container_image_in   = local.container_image
-#  app_container_port_in    = var.backend_app_container_port
-#  proxy_container_image_in = local.proxy_image
-#  vpc_id_in                = module.vpc.id
-#  subnets_in               = module.vpc.private_subnets_ids
-#  target_group_arn_in      = module.loadbalancer.target_group_arn
-#  proxy_container_port_in  = var.backend_proxy_container_port
-#  environment_name_in      = var.environment_name
-#}
-#
+module "backend" {
+  source                   = "../../modules/backend"
+  cluster_name_in          = module.ecs.name
+  app_container_image_in   = local.container_image
+  app_container_name_in    = "app"
+  app_container_port_in    = var.backend_app_container_port
+  vpc_id_in                = module.vpc.id
+  subnets_in               = module.vpc.private_subnets_ids
+  target_group_arn_in      = module.loadbalancer.target_group_arn
+  proxy_container_port_in  = var.backend_proxy_container_port
+  proxy_container_name_in  = "nginx"
+  proxy_container_image_in = local.proxy_image
+  environment_name_in      = var.environment_name
+}
+
 
 module "frontend" {
   source              = "../../modules/frontend"

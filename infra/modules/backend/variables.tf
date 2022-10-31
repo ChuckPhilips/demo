@@ -1,0 +1,11 @@
+variable "vpc_id_in" {}
+variable "subnets_in" {}
+variable "target_group_arn_in" {}
+variable "app_container_port_in" {}
+variable "app_container_image_in" {}
+variable "app_container_name_in" {}
+variable "proxy_container_port_in" {}
+variable "proxy_container_image_in" {}
+variable "proxy_container_name_in" {}
+variable "environment_name_in" {}
+variable "cluster_name_in" {}

@@ -13,7 +13,7 @@ data "aws_iam_policy_document" "ecs_role_assume_role_policy" {
 }
 
 resource "aws_iam_role" "ecs_role" {
-  name               = "ecsRole-${var.postfix_in}"
+  name               = "${var.environment_name_in}-ecsRole"
   assume_role_policy = data.aws_iam_policy_document.ecs_role_assume_role_policy.json
 }
 
@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "task_execution_role_assume_role_policy" {
 }
 
 resource "aws_iam_role" "task_execution_role" {
-  name               = "ecsTaskExecutionRole-${var.postfix_in}"
+  name               = "${var.environment_name_in}-ecsTaskExecutionRole"
   assume_role_policy = data.aws_iam_policy_document.task_execution_role_assume_role_policy.json
 }
 
@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "task_role_policy_document" {
 }
 
 resource "aws_iam_role" "task_role" {
-  name               = "ecsTaskRole-${var.postfix_in}"
+  name               = "${var.environment_name_in}-ecsTaskRole"
   assume_role_policy = data.aws_iam_policy_document.task_role_assume_role_policy.json
 }
 
@@ -115,7 +115,7 @@ data "aws_iam_policy_document" "ec2_instance_assume_role_policy" {
 
 resource "aws_iam_role" "ec2_instance_role" {
   assume_role_policy = data.aws_iam_policy_document.ec2_instance_assume_role_policy.json
-  name               = "ecsInstanceRole-${var.postfix_in}"
+  name               = "${var.environment_name_in}-ecsInstanceRole"
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_instance_role_container_service" {
@@ -129,7 +129,7 @@ resource "aws_iam_role_policy_attachment" "ec2_instance_role_ssm_managed_instanc
 }
 
 resource "aws_iam_instance_profile" "ec2_instance" {
-  name = "ecsInstanceProfile-${var.postfix_in}"
+  name = "${var.environment_name_in}-ecsInstanceProfile"
   role = aws_iam_role.ec2_instance_role.name
 }
 
@@ -148,7 +148,7 @@ data "aws_iam_policy_document" "ecs_autoscaling_role_assume_role_policy" {
 }
 
 resource "aws_iam_role" "ecs_autoscaling_role" {
-  name               = "ecsAutoScalingRole-${var.postfix_in}"
+  name               = "${var.environment_name_in}-ecsAutoScalingRole"
   assume_role_policy = data.aws_iam_policy_document.ecs_autoscaling_role_assume_role_policy.json
 }
 

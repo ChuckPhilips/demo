@@ -1,7 +1,5 @@
-variable "postfix_in" {}
-
 resource "aws_ecs_cluster" "main" {
-  name = "cluster-${var.postfix_in}"
+  name = "${var.environment_name_in}-cluster"
 
   configuration {
     execute_command_configuration {
@@ -14,8 +12,4 @@ resource "aws_ecs_cluster" "main" {
     value = "disabled"
   }
 
-}
-
-output "name" {
-  value = aws_ecs_cluster.main.name
 }
