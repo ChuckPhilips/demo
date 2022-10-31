@@ -29,6 +29,13 @@ runs:
         if: contains(inputs.changed-directories, 'proxy')
         shell: bash
 
+      - name: Print proxy env variables
+        run: cat default.conf
+        working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
+        if: contains(inputs.changed-directories, 'proxy')
+        shell: bash
+      
+
       - name: Substitute app env variables
         run: envsubst <  server.js.tpl > server.js
         working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
