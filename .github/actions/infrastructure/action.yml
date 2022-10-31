@@ -105,7 +105,7 @@ runs:
         working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
 
-      # - name: Terraform apply
-      #   working-directory: "./tier0/environments/${{ github.ref_name }}"
-      #   run: terraform apply -auto-approve
-      #   shell: bash
+      - name: Terraform apply
+        run: terraform apply -auto-approve
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
+        shell: bash

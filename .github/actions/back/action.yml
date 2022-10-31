@@ -113,11 +113,11 @@ runs:
         working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
 
-      # - name: Terraform apply
-      #   run: terraform apply -auto-approve -target module.ecs.aws_ecs_service.api -target module.ecs.aws_ecs_task_definition.api
-      #   env:
-      #       TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
-      #       TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
-      #   working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
-      #   shell: bash
-      #
+      - name: Terraform apply
+        run: terraform apply -auto-approve -target module.backend.aws_ecs_service.backend -target module.backend.aws_ecs_task_definition.backend
+        env:
+            TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+            TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}       
+        working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
+        shell: bash
+      
