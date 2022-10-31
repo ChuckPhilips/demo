@@ -22,7 +22,7 @@ runs:
         
         for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_and_modified_files }}; do
           
-          if [[ $(echo "$directory" | grep -cE "^infra") -gt 0 ]]
+          if [[ $(echo "$directory" | grep -cE "^infrastructure") -gt 0 ]]
           then
             echo "infra_changed=true" | tee -a "$GITHUB_OUTPUT"
           fi

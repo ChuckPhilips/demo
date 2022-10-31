@@ -22,7 +22,7 @@ env:
   PROXY_DIRECTORY: 'proxy'
   NODEJS_DIRECTORY: 'nodejs'
   BACKEND_DIRECTORY: 'back'
-  INFRASTRUCTURE_DIRECTORY: 'infra'
+  INFRASTRUCTURE_DIRECTORY: 'infrastructure'
   FRONTEND_DIRECTORY: "front"
 
 jobs:
