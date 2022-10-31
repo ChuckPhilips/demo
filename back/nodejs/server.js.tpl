@@ -1,7 +1,7 @@
-var express = require('express');
-var app = express();
+const express = require('express');
+const app = express();
 import { Users } from "./users.js";
-var cors = require('cors');
+const cors = require('cors');
 import axios from "axios";
 
 app.use(cors());
