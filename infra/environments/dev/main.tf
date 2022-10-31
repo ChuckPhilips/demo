@@ -20,17 +20,17 @@ terraform {
 
 locals {
   app_image = join("/", tolist([
-    "${ecr_repository_url}",
+    "${var.ecr_repository_url}",
     "${var.backend_repository_name}:${var.backend_app_container_image_tag}"
   ]))
   proxy_image = join("/", tolist([
-    "${ecr_repository_url}",
+    "${var.ecr_repository_url}",
     "${var.backend_repository_name}:${var.backend_proxy_container_image_tag}"
   ]))
 
   tags = merge(var.global_tags,
     {
-      Environment = var.environment
+      Environment = var.environment_name
     }
   )
 }
