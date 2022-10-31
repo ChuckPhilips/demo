@@ -23,7 +23,7 @@ env:
   NODEJS_DIRECTORY: 'nodejs'
   BACKEND_DIRECTORY: 'backend'
   INFRASTRUCTURE_DIRECTORY: 'infrastructure'
-  FRONTEND_DIRECTORY: "front"
+  FRONTEND_DIRECTORY: "frontend"
 
 jobs:
   changes:

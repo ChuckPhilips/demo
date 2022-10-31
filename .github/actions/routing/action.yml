@@ -32,7 +32,7 @@ runs:
             echo "back_changed=true" | tee -a "$GITHUB_OUTPUT"
           fi
 
-          if [[ $(echo "$directory" | grep -cE "^front") -gt 0 ]]
+          if [[ $(echo "$directory" | grep -cE "^frontend") -gt 0 ]]
           then
             echo "front_changed=true" | tee -a "$GITHUB_OUTPUT"
           fi
