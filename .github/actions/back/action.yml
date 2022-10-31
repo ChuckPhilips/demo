@@ -24,19 +24,17 @@ runs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Substitute proxy env variables
-        run: envsubst <  default.conf.tpl > default.conf
+        run: |
+          envsubst <  default.conf.tpl > default.conf
+          cat default.conf
         working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.PROXY_DIRECTORY }}/"
         if: contains(inputs.changed-directories, 'proxy')
         shell: bash
 
       - name: Substitute app env variables
-        run: envsubst <  server.js.tpl > server.js
-        working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
-        if: contains(inputs.changed-directories, 'nodejs')
-        shell: bash
-
-      - name: Substitute app env variables
-        run: echo server.js
+        run: |
+          envsubst <  server.js.tpl > server.js
+          cat server.js
         working-directory: "${{ env.BACKEND_DIRECTORY }}/${{ env.NODEJS_DIRECTORY }}/"
         if: contains(inputs.changed-directories, 'nodejs')
         shell: bash
