@@ -81,4 +81,3 @@ module "frontend" {
   source              = "../../modules/frontend"
   environment_name_in = var.environment_name
 }
-
