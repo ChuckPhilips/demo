@@ -23,4 +23,5 @@ variable "global_tags" {
 
 variable "ecr_repository_url" {}
 variable "frontend_repository_name" {}
-variable "backend_repository_name" {}
+variable "backend_app_repository_name" {}
+variable "backend_proxy_repository_name" {}

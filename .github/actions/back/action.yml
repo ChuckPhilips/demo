@@ -113,6 +113,7 @@ runs:
           TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
           TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
           TF_VAR_ecr_repository_url: ${{ env.ECR_REPOSITORY_URL }}
+          TF_VAR_frontend_repository_name: ${{ env.FRONTEND_REPOSITORY_NAME }}
           TF_VAR_backend_app_repository_name: ${{ env.BACKEND_APP_REPOSITORY_NAME }}
           TF_VAR_backend_proxy_repository_name: ${{ env.BACKEND_PROXY_REPOSITORY_NAME }}
 
