@@ -1,4 +1,3 @@
-variable "postfix_in" {}
 variable "environment_name_in" {}
 
 resource "aws_s3_bucket" "frontend" {
@@ -29,7 +28,7 @@ resource "aws_cloudfront_public_key" "frontend" {
 
 resource "aws_cloudfront_key_group" "frontend" {
   items = [aws_cloudfront_public_key.frontend.id]
-  name  = "frontend-${var.postfix_in}"
+  name  = "${var.environment_name_in}-frontend"
 }
 
 resource "aws_cloudfront_cache_policy" "frontend" {

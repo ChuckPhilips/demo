@@ -68,9 +68,7 @@ module "backend" {
   environment_name_in      = var.environment_name
 }
 
-
 module "frontend" {
   source              = "../../modules/frontend"
-  postfix_in          = var.environment_name
   environment_name_in = var.environment_name
 }
