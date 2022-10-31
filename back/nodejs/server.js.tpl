@@ -20,4 +20,4 @@ app.get("/", (req, res) => {
   q ? res.json(search(Users).slice(0, 10)) : res.json(Users.slice(0, 10));
 });
 
-app.listen(${PORT}, () => console.log("API is working!"));
+app.listen(${APP_PORT}, () => console.log("API is working!"));
