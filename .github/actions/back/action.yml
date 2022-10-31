@@ -64,7 +64,7 @@ runs:
             ${{ env.BACKEND_REPOSITORY_URL }}:${{ github.ref_name }}
             ${{ env.BACKEND_REPOSITORY_URL }}:${{ inputs.short-sha }}
         env:
-          BACKEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_REPOSITORY_NAME) }}
+          BACKEND_REPOSITORY_URL: ${{ format('{0}/{1}', env.ECR_REPOSITORY_URL, env.BACKEND_APP_REPOSITORY_NAME) }}
         if: contains(inputs.changed-directories, 'nodejs')
 
       - name: Set proxy tag
@@ -82,7 +82,7 @@ runs:
         uses: ./.github/actions/set-backend-tags/
         with: 
           short-sha: ${{ inputs.short-sha }}
-          repository-name: ${{ env.BACKEND_REPOSITORY_NAME }}
+          repository-name: ${{ env.BACKEND_APP_REPOSITORY_NAME }}
           filter-tag: ${{ env.FILTER_TAG }}
           region: ${{ env.AWS_REGION }}
           branch: ${{ github.ref_name }}
@@ -113,8 +113,8 @@ runs:
           TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
           TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
           TF_VAR_ecr_repository_url: ${{ env.ECR_REPOSITORY_URL }}
-          TF_VAR_frontend_repository_name: ${{ env.FRONTEND_REPOSITORY_NAME }}
-          TF_VAR_backend_repository_name: ${{ env.BACKEND_REPOSITORY_NAME }}
+          TF_VAR_backend_app_repository_name: ${{ env.BACKEND_APP_REPOSITORY_NAME }}
+          TF_VAR_backend_proxy_repository_name: ${{ env.BACKEND_PROXY_REPOSITORY_NAME }}
 
       - name: Terraform apply
         run: terraform apply -auto-approve -target module.backend.aws_ecs_service.backend -target module.backend.aws_ecs_task_definition.backend
@@ -125,5 +125,6 @@ runs:
           TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
           TF_VAR_ecr_repository_url: ${{ env.ECR_REPOSITORY_URL }}
           TF_VAR_frontend_repository_name: ${{ env.FRONTEND_REPOSITORY_NAME }}
-          TF_VAR_backend_repository_name: ${{ env.BACKEND_REPOSITORY_NAME }}
+          TF_VAR_backend_app_repository_name: ${{ env.BACKEND_APP_REPOSITORY_NAME }}
+          TF_VAR_backend_proxy_repository_name: ${{ env.BACKEND_PROXY_REPOSITORY_NAME }}
       
