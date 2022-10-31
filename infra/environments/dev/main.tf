@@ -26,34 +26,37 @@ locals {
   )
 }
 
+### NE BRISATI
 module "account" {
   source = "../../modules/account"
 }
+###
 
-# module "vpc" {
-#   source        = "../../modules/vpc"
-#   cidr_block_in = var.cidr_block
-#   postfix_in    = "dev"
-# }
+module "vpc" {
+  source              = "../../modules/vpc"
+  cidr_block_in       = var.cidr_block
+  postfix_in          = var.environment_name
+  environment_name_in = var.environment_name
+}
 
-# module "loadbalancer" {
-#   source                = "../../modules/loadbalancer"
-#   vpc_id_in             = module.vpc.id
-#   postfix_in            = "dev"
-#   subnets_in            = module.vpc.public_subnets_ids
-#   backend_proxy_port_in = var.backend_proxy_container_port
-#   dns_zone_id_in        = module.account.zone_id
-# }
+module "loadbalancer" {
+  source                = "../../modules/loadbalancer"
+  vpc_id_in             = module.vpc.id
+  subnets_in            = module.vpc.public_subnets_ids
+  backend_proxy_port_in = var.backend_proxy_container_port
+  dns_zone_id_in        = module.account.zone_id
+  environment_name_in   = var.environment_name
+}
 
 #module "ecs" {
 #  source = "../../modules/ecs"
-#  postfix_in = "dev"
+#  postfix_in = var.environment_name
 #}
 
 #module "backend" {
 #  source                   = "../../modules/backend"
 #  ecs_name_in                = module.ecs.name
-#  postfix_in               = "dev"
+#  postfix_in               = var.envionment_name
 #  app_container_image_in   = local.container_image
 #  app_container_port_in    = var.backend_app_container_port
 #  proxy_container_image_in = local.proxy_image
@@ -61,10 +64,12 @@ module "account" {
 #  subnets_in               = module.vpc.private_subnets_ids
 #  target_group_arn_in      = module.loadbalancer.target_group_arn
 #  proxy_container_port_in  = var.backend_proxy_container_port
+#  environment_name_in      = var.environment_name
 #}
 #
 
 module "frontend" {
-  source     = "../../modules/frontend"
-  postfix_in = "dev"
+  source              = "../../modules/frontend"
+  postfix_in          = var.environment_name
+  environment_name_in = var.environment_name
 }

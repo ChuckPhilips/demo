@@ -1,7 +1,8 @@
 variable "postfix_in" {}
+variable "environment_name_in" {}
 
 resource "aws_s3_bucket" "frontend" {
-  bucket        = "fcuic-demo-frontend-${var.postfix_in}"
+  bucket        = "buddy-demo-frontend"
   force_destroy = true
 }
 
@@ -52,6 +53,10 @@ resource "aws_cloudfront_cache_policy" "frontend" {
   }
 }
 
+locals {
+  origin_id = "${var.environment_name_in}-${aws_s3_bucket.frontend.id}"
+}
+
 resource "aws_cloudfront_distribution" "frontend" {
   enabled         = true
   is_ipv6_enabled = true
@@ -75,7 +80,7 @@ resource "aws_cloudfront_distribution" "frontend" {
 
   origin {
     domain_name = aws_s3_bucket.frontend.bucket_regional_domain_name
-    origin_id   = "${aws_s3_bucket.frontend.id}-${var.postfix_in}"
+    origin_id   = local.origin_id
     #origin_access_control_id = aws_cloudfront_origin_access_identity.frontend.id
 
     s3_origin_config {
@@ -90,7 +95,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "${aws_s3_bucket.frontend.id}-${var.postfix_in}"
+    target_origin_id       = local.origin_id
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
     cache_policy_id        = aws_cloudfront_cache_policy.frontend.id
@@ -117,7 +122,7 @@ resource "aws_cloudfront_distribution" "frontend" {
     response_page_path    = "/index.html"
   }
 
-  tags = tomap({ Name = "cloudfront-${var.postfix_in}" })
+  tags = tomap({ Name = "${var.environment_name_in}-cloudfront" })
 }
 
 output "cloudfront_id" {

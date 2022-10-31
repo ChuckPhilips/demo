@@ -5,6 +5,7 @@ variable "cidr_block_in" {
 variable "postfix_in" {
   description = "Prefix for the resources."
 }
+variable "environment_name_in" {}
 
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
@@ -15,13 +16,13 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = tomap({ Name = "vpc-${var.postfix_in}" })
+  tags = tomap({ Name = "${var.environment_name_in}-vpc" })
 }
 
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
-  tags = tomap({ Name = "internet-gateway-${var.postfix_in}" })
+  tags = tomap({ Name = "${var.environment_name_in}-internet-gateway" })
 }
 
 module "public_a" {
@@ -29,7 +30,7 @@ module "public_a" {
   vpc_id_in              = aws_vpc.main.id
   subnet_in              = cidrsubnet(var.cidr_block_in, 8, 2)
   identifier_in          = "a"
-  postfix_in             = var.postfix_in
+  environment_name_in    = var.environment_name_in
   internet_gateway_id_in = aws_internet_gateway.main.id
 }
 
@@ -38,24 +39,24 @@ module "public_b" {
   vpc_id_in              = aws_vpc.main.id
   subnet_in              = cidrsubnet(var.cidr_block_in, 8, 4)
   identifier_in          = "b"
-  postfix_in             = var.postfix_in
+  environment_name_in    = var.environment_name_in
   internet_gateway_id_in = aws_internet_gateway.main.id
 }
 
 module "private_a" {
-  source            = "./private"
-  vpc_id_in         = aws_vpc.main.id
-  subnet_in         = cidrsubnet(var.cidr_block_in, 4, 1)
-  identifier_in     = "a"
-  postfix_in        = var.postfix_in
-  nat_gateway_id_in = module.public_a.nat_gateway_id
+  source              = "./private"
+  vpc_id_in           = aws_vpc.main.id
+  subnet_in           = cidrsubnet(var.cidr_block_in, 4, 1)
+  identifier_in       = "a"
+  environment_name_in = var.environment_name_in
+  nat_gateway_id_in   = module.public_a.nat_gateway_id
 }
 
 module "private_b" {
-  source            = "./private"
-  vpc_id_in         = aws_vpc.main.id
-  subnet_in         = cidrsubnet(var.cidr_block_in, 4, 2)
-  identifier_in     = "b"
-  postfix_in        = var.postfix_in
-  nat_gateway_id_in = module.public_b.nat_gateway_id
+  source              = "./private"
+  vpc_id_in           = aws_vpc.main.id
+  subnet_in           = cidrsubnet(var.cidr_block_in, 4, 2)
+  identifier_in       = "b"
+  environment_name_in = var.environment_name_in
+  nat_gateway_id_in   = module.public_b.nat_gateway_id
 }

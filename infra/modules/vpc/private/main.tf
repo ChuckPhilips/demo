@@ -1,8 +1,8 @@
 variable "vpc_id_in" {}
 variable "subnet_in" {}
 variable "identifier_in" {}
-variable "postfix_in" {}
 variable "nat_gateway_id_in" {}
+variable "environment_name_in" {}
 
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
@@ -12,13 +12,13 @@ resource "aws_subnet" "private" {
   vpc_id            = var.vpc_id_in
   availability_zone = "${data.aws_region.current.name}${var.identifier_in}"
 
-  tags = tomap({ Name = "subnet-private-${var.identifier_in}-${var.postfix_in}" })
+  tags = tomap({ Name = "${var.environment_name_in}-subnet-private-${var.identifier_in}" })
 }
 
 resource "aws_route_table" "private" {
   vpc_id = var.vpc_id_in
 
-  tags = tomap({ Name = "route-table-private-${var.identifier_in}-${var.postfix_in}" })
+  tags = tomap({ Name = "${var.environment_name_in}-route-table-private-${var.identifier_in}" })
 }
 
 resource "aws_route_table_association" "private" {

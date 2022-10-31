@@ -1,15 +1,9 @@
-variable "vpc_id_in" {}
-variable "postfix_in" {}
-variable "subnets_in" {}
-variable "backend_proxy_port_in" {}
-variable "dns_zone_id_in" {}
-variable "backend_subdomain_name_in" {
-  default = "www.vicertbuddy.pro"
-}
-
+########################################################################
+### LOADBALANCER
+########################################################################
 resource "aws_security_group" "loadbalancer" {
   description = "Allow access to Application Load Balancer"
-  name        = "loadbalancer-${var.postfix_in}"
+  name        = "${var.environment_name_in}-loadbalancer-sg"
   vpc_id      = var.vpc_id_in
 
   ingress {
@@ -35,17 +29,23 @@ resource "aws_security_group" "loadbalancer" {
 }
 
 resource "aws_lb" "main" {
-  name                       = "main-${var.postfix_in}"
+  name                       = "${var.environment_name_in}-main-loadbalancer"
   load_balancer_type         = "application"
   drop_invalid_header_fields = true
   enable_deletion_protection = false
   subnets                    = var.subnets_in
 
+  access_logs {
+    bucket  = aws_s3_bucket.access_logs.bucket
+    prefix  = var.environment_name_in
+    enabled = true
+  }
+
   security_groups = [aws_security_group.loadbalancer.id]
 }
 
 resource "aws_lb_target_group" "backend" {
-  name_prefix          = var.postfix_in
+  name_prefix          = var.environment_name_in
   protocol             = "HTTP"
   vpc_id               = var.vpc_id_in
   target_type          = "ip"
@@ -95,6 +95,11 @@ resource "aws_lb_listener" "http" {
   }
 }
 
+
+########################################################################
+### CERTIFICATE
+########################################################################
+
 resource "aws_route53_record" "backend" {
   zone_id = var.dns_zone_id_in
   name    = var.backend_subdomain_name_in
@@ -128,6 +133,67 @@ resource "aws_acm_certificate_validation" "backend" {
 }
 
 
-output "target_group_arn" {
-  value = aws_lb_target_group.backend.id
+########################################################################
+### ACCESS LOGS
+########################################################################
+resource "aws_s3_bucket" "access_logs" {
+  bucket        = var.access_logs_bucket_name
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_versioning" "access_logs" {
+  bucket = aws_s3_bucket.access_logs.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_acl" "access_logs" {
+  bucket = aws_s3_bucket.access_logs.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
+  bucket = aws_s3_bucket.access_logs.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "access_logs" {
+  bucket = aws_s3_bucket.access_logs.id
+
+  rule {
+    id     = "logs"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      days = 1
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 1
+    }
+  }
+
+  depends_on = [aws_s3_bucket_versioning.access_logs]
+}
+
+resource "aws_s3_bucket_public_access_block" "access_logs" {
+  bucket                  = aws_s3_bucket.access_logs.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_policy" "access_logs" {
+  bucket     = aws_s3_bucket.access_logs.id
+  policy     = data.aws_iam_policy_document.access_logs.json
+  depends_on = [aws_s3_bucket_public_access_block.access_logs]
 }

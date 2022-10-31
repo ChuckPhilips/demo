@@ -34,3 +34,7 @@ variable "global_tags" {
     "Maintainer" = "Filip"
   }
 }
+
+variable "environment_name" {
+  default = "dev"
+}
