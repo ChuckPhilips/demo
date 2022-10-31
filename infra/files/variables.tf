@@ -8,25 +8,11 @@ variable "cidr_block" {
   default     = "172.18.0.0/16"
 }
 
-variable "environment" {
-  type        = string
-  description = "Environment name."
-  default     = "dev"
-}
-
-variable "backend_app_container_port" {
-  default = 8080
-}
-
+variable "backend_app_container_port" {}
 variable "backend_app_container_image_tag" {}
 
-variable "backend_proxy_container_port" {
-  default = 80
-}
-
-variable "backend_proxy_container_image_tag" {
-  default = "latest"
-}
+variable "backend_proxy_container_port" {}
+variable "backend_proxy_container_image_tag" {}
 
 variable "global_tags" {
   type = map(any)
@@ -35,6 +21,6 @@ variable "global_tags" {
   }
 }
 
-variable "environment_name" {
-  default = "dev"
-}
+variable "ecr_repository_url" {}
+variable "frontend_repository_name" {}
+variable "backend_repository_name" {}

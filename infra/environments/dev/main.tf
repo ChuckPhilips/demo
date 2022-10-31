@@ -1,3 +1,7 @@
+variable "environment_name" {
+  default = "dev"
+}
+
 terraform {
   backend "s3" {
     bucket         = "fcuic-infrastructure-lock"
@@ -15,9 +19,14 @@ terraform {
 }
 
 locals {
-  postfix         = "${var.environment}-${data.aws_caller_identity.current.account_id}"
-  container_image = "454624638483.dkr.ecr.us-east-2.amazonaws.com/backend:${var.backend_app_container_image_tag}"
-  proxy_image     = "454624638483.dkr.ecr.us-east-2.amazonaws.com/proxy:${var.backend_proxy_container_image_tag}"
+  app_image = join("/", tolist([
+    "${ecr_repository_url}",
+    "${var.backend_repository_name}:${var.backend_app_container_image_tag}"
+  ]))
+  proxy_image = join("/", tolist([
+    "${ecr_repository_url}",
+    "${var.backend_repository_name}:${var.backend_proxy_container_image_tag}"
+  ]))
 
   tags = merge(var.global_tags,
     {
@@ -56,7 +65,7 @@ module "ecs" {
 module "backend" {
   source                   = "../../modules/backend"
   cluster_name_in          = module.ecs.name
-  app_container_image_in   = local.container_image
+  app_container_image_in   = local.app_image
   app_container_name_in    = "app"
   app_container_port_in    = var.backend_app_container_port
   vpc_id_in                = module.vpc.id
