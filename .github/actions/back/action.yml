@@ -11,14 +11,6 @@ inputs:
     required: true
 runs:
   using: "composite"
-  env:
-    TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
-    TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
-    TF_VAR_ecr_repository_url: ${{ env.ECR_REPOSITORY_URL }}
-    TF_VAR_frontend_repository_name: ${{ env.FRONTEND_REPOSITORY_NAME }}
-    TF_VAR_backend_repository_name: ${{ env.BACKEND_REPOSITORY_NAME }}
-    TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
-    TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
   steps:      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -117,9 +109,21 @@ runs:
         run: terraform plan -no-color -target module.backend.aws_ecs_service.backend -target module.backend.aws_ecs_task_definition.backend     
         working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
+        env:
+          TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+          TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
+          TF_VAR_ecr_repository_url: ${{ env.ECR_REPOSITORY_URL }}
+          TF_VAR_frontend_repository_name: ${{ env.FRONTEND_REPOSITORY_NAME }}
+          TF_VAR_backend_repository_name: ${{ env.BACKEND_REPOSITORY_NAME }}
 
       - name: Terraform apply
         run: terraform apply -auto-approve -target module.backend.aws_ecs_service.backend -target module.backend.aws_ecs_task_definition.backend
         working-directory: "${{ env.INFRASTRUCTURE_DIRECTORY }}/environments/${{ github.ref_name }}/"
         shell: bash
+        env:
+          TF_VAR_backend_app_container_port: ${{ env.APP_PORT }}
+          TF_VAR_backend_proxy_container_port: ${{ env.PROXY_PORT }}
+          TF_VAR_ecr_repository_url: ${{ env.ECR_REPOSITORY_URL }}
+          TF_VAR_frontend_repository_name: ${{ env.FRONTEND_REPOSITORY_NAME }}
+          TF_VAR_backend_repository_name: ${{ env.BACKEND_REPOSITORY_NAME }}
       
