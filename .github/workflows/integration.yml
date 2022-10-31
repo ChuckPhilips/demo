@@ -21,7 +21,7 @@ env:
   FILTER_TAG: latest
   PROXY_DIRECTORY: 'proxy'
   NODEJS_DIRECTORY: 'nodejs'
-  BACKEND_DIRECTORY: 'back'
+  BACKEND_DIRECTORY: 'backend'
   INFRASTRUCTURE_DIRECTORY: 'infrastructure'
   FRONTEND_DIRECTORY: "front"
 
