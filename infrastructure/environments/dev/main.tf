@@ -41,22 +41,22 @@ module "account" {
 }
 ###
 
-#module "vpc" {
-#  source              = "../../modules/vpc"
-#  cidr_block_in       = var.cidr_block
-#  postfix_in          = var.environment_name
-#  environment_name_in = var.environment_name
-#}
-#
-#module "loadbalancer" {
-#  source                = "../../modules/loadbalancer"
-#  vpc_id_in             = module.vpc.id
-#  subnets_in            = module.vpc.public_subnets_ids
-#  backend_proxy_port_in = var.backend_proxy_container_port
-#  dns_zone_id_in        = module.account.zone_id
-#  environment_name_in   = var.environment_name
-#}
-#
+module "vpc" {
+  source              = "../../modules/vpc"
+  cidr_block_in       = var.cidr_block
+  postfix_in          = var.environment_name
+  environment_name_in = var.environment_name
+}
+
+module "loadbalancer" {
+  source                = "../../modules/loadbalancer"
+  vpc_id_in             = module.vpc.id
+  subnets_in            = module.vpc.public_subnets_ids
+  backend_proxy_port_in = var.backend_proxy_container_port
+  dns_zone_id_in        = module.account.zone_id
+  environment_name_in   = var.environment_name
+}
+
 #module "ecs" {
 #  source              = "../../modules/ecs"
 #  environment_name_in = var.environment_name

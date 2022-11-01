@@ -32,14 +32,10 @@ resource "aws_route" "private_internet_out" {
   destination_cidr_block = "0.0.0.0/0"
 }
 
-output "private_subnet_id" {
+output "id" {
   value = aws_subnet.private.id
 }
 
-output "private_subnet_cidr_block" {
+output "cidr_block" {
   value = aws_subnet.private.cidr_block
-}
-
-output "availability_zone" {
-  value = "${data.aws_region.current.name}${var.identifier_in}"
 }

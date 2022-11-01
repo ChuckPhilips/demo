@@ -47,16 +47,12 @@ resource "aws_nat_gateway" "public" {
 }
 
 
-output "public_subnet_id" {
+output "id" {
   value = aws_subnet.public.id
 }
 
-output "public_subnet_cidr_block" {
+output "cidr_block" {
   value = aws_subnet.public.cidr_block
-}
-
-output "availability_zone" {
-  value = "${data.aws_region.current.name}${var.identifier_in}"
 }
 
 output "nat_gateway_id" {
