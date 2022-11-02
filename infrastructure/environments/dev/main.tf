@@ -24,17 +24,17 @@ provider "aws" {
 
 locals {
   tags = merge(var.global_tags, {
-      Environment = var.environment_name
+    Environment = var.environment_name
     }
   )
-  subdomain_name = "${var.environment_name}.${var.domain_name}"
-  backend_subdomain_name = "api.${local.subdomain_name}"
+  subdomain_name          = "${var.environment_name}.${var.domain_name}"
+  backend_subdomain_name  = "api.${local.subdomain_name}"
   frontend_subdomain_name = "app.${local.subdomain_name}"
 }
 
 ### NE BRISATI
 module "account" {
-  source = "../../modules/account"
+  source            = "../../modules/account"
   subdomain_name_in = local.subdomain_name
 }
 ###
