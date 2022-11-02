@@ -1,4 +1,15 @@
+
+terraform {
+  required_providers {
+    aws = {
+      configuration_aliases = [aws.us-east-1]
+    }
+  }
+}
+
 variable "environment_name_in" {}
+variable "frontend_subdomain_name_in" {}
+variable "root_dns_zone_id_in" {}
 
 resource "aws_s3_bucket" "frontend" {
   bucket        = "buddy-demo-frontend"
@@ -57,9 +68,9 @@ locals {
 }
 
 resource "aws_cloudfront_distribution" "frontend" {
-  enabled         = true
-  is_ipv6_enabled = true
-  #aliases             = [var.environment_web_domain_name_in]
+  enabled             = true
+  is_ipv6_enabled     = true
+  aliases             = [var.frontend_subdomain_name_in]
   default_root_object = "index.html"
   retain_on_delete    = false #true bi disable distribuciju i moras ju obrisati rucno
   wait_for_deployment = true  #false znaci da terraform NE ceka da distribucija prede iz InProgress u Deployed, ubrzava deploy
@@ -88,8 +99,10 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn = aws_acm_certificate.frontend.arn # The ACM certificate must be in US-EAST-1.
+    ssl_support_method  = "sni-only"
   }
+
 
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
@@ -124,10 +137,44 @@ resource "aws_cloudfront_distribution" "frontend" {
   tags = tomap({ Name = "${var.environment_name_in}-cloudfront" })
 }
 
-output "cloudfront_id" {
-  value = aws_cloudfront_distribution.frontend.id
+########################################################################
+### CERTIFICATE
+########################################################################
+
+resource "aws_route53_record" "frontend" {
+  zone_id = var.root_dns_zone_id_in
+  name    = var.frontend_subdomain_name_in
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.frontend.domain_name
+    zone_id                = aws_cloudfront_distribution.frontend.hosted_zone_id
+    evaluate_target_health = false
+  }
 }
 
-output "bucket_name" {
-  value = aws_s3_bucket.frontend.id
+resource "aws_acm_certificate" "frontend" {
+  provider          = aws.us-east-1
+  domain_name       = var.frontend_subdomain_name_in
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
+
+resource "aws_route53_record" "frontend_certificate_validation" {
+  allow_overwrite = true
+  name            = tolist(aws_acm_certificate.frontend.domain_validation_options)[0].resource_record_name
+  records         = [tolist(aws_acm_certificate.frontend.domain_validation_options)[0].resource_record_value]
+  type            = tolist(aws_acm_certificate.frontend.domain_validation_options)[0].resource_record_type
+  zone_id         = var.root_dns_zone_id_in
+  ttl             = 60
+}
+
+resource "aws_acm_certificate_validation" "frontend" {
+  provider                = aws.us-east-1
+  certificate_arn         = aws_acm_certificate.frontend.arn
+  validation_record_fqdns = [aws_route53_record.frontend_certificate_validation.fqdn]
+}
+

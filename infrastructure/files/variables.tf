@@ -26,7 +26,7 @@ variable "frontend_repository_name" {}
 variable "backend_app_repository_name" {}
 variable "backend_proxy_repository_name" {}
 variable "domain_name" {
-  default = "vicertbuddy.pro."
+  default = "vicertbuddy.pro"
 }
 
 locals {

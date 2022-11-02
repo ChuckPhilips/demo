@@ -101,7 +101,7 @@ resource "aws_lb_listener" "http" {
 ########################################################################
 
 resource "aws_route53_record" "backend" {
-  zone_id = var.dns_zone_id_in
+  zone_id = var.root_dns_zone_id_in
   name    = var.backend_subdomain_name_in
   type    = "CNAME"
   ttl     = "300"
@@ -123,7 +123,7 @@ resource "aws_route53_record" "certificate_validation" {
   name            = tolist(aws_acm_certificate.backend.domain_validation_options)[0].resource_record_name
   records         = [tolist(aws_acm_certificate.backend.domain_validation_options)[0].resource_record_value]
   type            = tolist(aws_acm_certificate.backend.domain_validation_options)[0].resource_record_type
-  zone_id         = var.dns_zone_id_in
+  zone_id         = var.root_dns_zone_id_in
   ttl             = 60
 }
 
