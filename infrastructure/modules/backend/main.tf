@@ -47,7 +47,7 @@ resource "aws_ecs_task_definition" "backend" {
 
 resource "aws_ecs_service" "backend" {
   name                   = "${var.environment_name_in}-backend"
-  cluster                = aws_ecs_cluster.main.name
+  cluster                = aws_ecs_cluster.backend.name
   task_definition        = aws_ecs_task_definition.backend.arn
   desired_count          = 1
   launch_type            = "FARGATE"

@@ -39,42 +39,47 @@ module "account" {
 }
 ###
 
-# module "vpc" {
-#   source              = "../../modules/vpc"
-#   cidr_block_in       = var.cidr_block
-#   environment_name_in = var.environment_name
-#   subdomain_name_in   = var.subdomain_name
-# }
+module "vpc" {
+  source              = "../../modules/vpc"
+  cidr_block_in       = var.cidr_block
+  environment_name_in = var.environment_name
+}
 
-# module "loadbalancer" {
-#   source                = "../../modules/loadbalancer"
-#   vpc_id_in             = module.vpc.id
-#   subnets_in            = module.vpc.public_subnets_ids
-#   backend_proxy_port_in = var.backend_proxy_container_port
-#   dns_zone_id_in        = module.account.zone_id
-#   environment_name_in   = var.environment_name
-#   backend_subdomain_name_in = local.backend_subdomain_name
-# }
+module "loadbalancer" {
+  source                = "../../modules/loadbalancer"
+  vpc_id_in             = module.vpc.id
+  subnets_in            = module.vpc.public_subnets_ids
+  backend_proxy_port_in = var.backend_proxy_container_port
+  dns_zone_id_in        = module.account.zone_id
+  environment_name_in   = var.environment_name
+  backend_subdomain_name_in = local.backend_subdomain_name
+}
 
-#module "backend" {
-#  source                   = "../../modules/backend"
-#  app_container_image_in   = local.app_image
-#  app_container_name_in    = "app"
-#  app_container_port_in    = var.backend_app_container_port
-#  vpc_id_in                = module.vpc.id
-#  subnets_in               = module.vpc.private_subnets_ids
-#  target_group_arn_in      = module.loadbalancer.target_group_arn
-#  proxy_container_port_in  = var.backend_proxy_container_port
-#  proxy_container_name_in  = "nginx"
-#  proxy_container_image_in = local.proxy_image
-#  environment_name_in      = var.environment_name
-#}
+module "backend" {
+ source                   = "../../modules/backend"
+ app_container_image_in   = local.app_image
+ app_container_name_in    = "app"
+ app_container_port_in    = var.backend_app_container_port
+ vpc_id_in                = module.vpc.id
+ subnets_in               = module.vpc.private_subnets_ids
+ target_group_arn_in      = module.loadbalancer.target_group_arn
+ proxy_container_port_in  = var.backend_proxy_container_port
+ proxy_container_name_in  = "nginx"
+ proxy_container_image_in = local.proxy_image
+ environment_name_in      = var.environment_name
+}
 
 #module "frontend" {
 #  source              = "../../modules/frontend"
 #  environment_name_in = var.environment_name
 #  frontend_subdomain_name_in = local.frontend_subdomain_name
 #}
+
+#module "database" {}
+
+#module "serverless" {}
+
+#module config {}
 
 # output "cloudfront_id" {
 #   value = module.frontend.cloudfront_id
@@ -83,3 +88,4 @@ module "account" {
 # output "frontend_bucket_name" {
 #   value = module.frontend.bucket_name
 # }
+
