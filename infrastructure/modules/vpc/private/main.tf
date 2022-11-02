@@ -12,7 +12,7 @@ resource "aws_subnet" "private" {
   vpc_id            = var.vpc_id_in
   availability_zone = "${data.aws_region.current.name}${var.identifier_in}"
 
-  tags = tomap({ Name = "${var.environment_name_in}-subnet-private-${var.identifier_in}" })
+  tags = tomap({ Name = "${var.environment_name_in}-private-${var.identifier_in}" })
 }
 
 resource "aws_route_table" "private" {

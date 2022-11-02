@@ -8,4 +8,3 @@ variable "proxy_container_port_in" {}
 variable "proxy_container_image_in" {}
 variable "proxy_container_name_in" {}
 variable "environment_name_in" {}
-variable "cluster_name_in" {}

@@ -18,53 +18,46 @@ terraform {
   }
 }
 
-locals {
-  app_image = join("/", tolist([
-    "${var.ecr_repository_url}",
-    "${var.backend_app_repository_name}:${var.backend_app_container_image_tag}"
-  ]))
-  proxy_image = join("/", tolist([
-    "${var.ecr_repository_url}",
-    "${var.backend_proxy_repository_name}:${var.backend_proxy_container_image_tag}"
-  ]))
+provider "aws" {
+  region = var.region
+}
 
-  tags = merge(var.global_tags,
-    {
+locals {
+  tags = merge(var.global_tags, {
       Environment = var.environment_name
     }
   )
+  subdomain_name = "${var.environment_name}.${var.domain_name}"
+  backend_subdomain_name = "api.${local.subdomain_name}"
+  frontend_subdomain_name = "app.${local.subdomain_name}"
 }
 
 ### NE BRISATI
 module "account" {
   source = "../../modules/account"
+  subdomain_name_in = local.subdomain_name
 }
 ###
 
-module "vpc" {
-  source              = "../../modules/vpc"
-  cidr_block_in       = var.cidr_block
-  postfix_in          = var.environment_name
-  environment_name_in = var.environment_name
-}
+# module "vpc" {
+#   source              = "../../modules/vpc"
+#   cidr_block_in       = var.cidr_block
+#   environment_name_in = var.environment_name
+#   subdomain_name_in   = var.subdomain_name
+# }
 
-module "loadbalancer" {
-  source                = "../../modules/loadbalancer"
-  vpc_id_in             = module.vpc.id
-  subnets_in            = module.vpc.public_subnets_ids
-  backend_proxy_port_in = var.backend_proxy_container_port
-  dns_zone_id_in        = module.account.zone_id
-  environment_name_in   = var.environment_name
-}
+# module "loadbalancer" {
+#   source                = "../../modules/loadbalancer"
+#   vpc_id_in             = module.vpc.id
+#   subnets_in            = module.vpc.public_subnets_ids
+#   backend_proxy_port_in = var.backend_proxy_container_port
+#   dns_zone_id_in        = module.account.zone_id
+#   environment_name_in   = var.environment_name
+#   backend_subdomain_name_in = local.backend_subdomain_name
+# }
 
-#module "ecs" {
-#  source              = "../../modules/ecs"
-#  environment_name_in = var.environment_name
-#}
-#
 #module "backend" {
 #  source                   = "../../modules/backend"
-#  cluster_name_in          = module.ecs.name
 #  app_container_image_in   = local.app_image
 #  app_container_name_in    = "app"
 #  app_container_port_in    = var.backend_app_container_port
@@ -76,8 +69,17 @@ module "loadbalancer" {
 #  proxy_container_image_in = local.proxy_image
 #  environment_name_in      = var.environment_name
 #}
-#
+
 #module "frontend" {
 #  source              = "../../modules/frontend"
 #  environment_name_in = var.environment_name
+#  frontend_subdomain_name_in = local.frontend_subdomain_name
 #}
+
+# output "cloudfront_id" {
+#   value = module.frontend.cloudfront_id
+# }
+
+# output "frontend_bucket_name" {
+#   value = module.frontend.bucket_name
+# }
