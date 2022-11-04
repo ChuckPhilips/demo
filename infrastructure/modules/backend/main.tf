@@ -18,6 +18,55 @@ resource "aws_security_group" "service" {
   }
 }
 
+
+### TARGET GROUP
+resource "aws_lb_target_group" "backend" {
+  name_prefix          = var.environment_name_in
+  protocol             = "HTTP"
+  vpc_id               = var.vpc_id_in
+  target_type          = "ip"
+  port                 = var.proxy_container_port_in
+  deregistration_delay = 60
+
+  health_check {
+    path                = "/api/"
+    port                = var.proxy_container_port_in
+    interval            = 60
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+}
+
+### LISTENER
+
+
+resource "aws_lb_listener_rule" "https" {
+  listener_arn = var.https_listener_arn_in
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.backend.arn
+  }
+
+  # condition {
+  #   path_pattern {
+  #     values = ["/api/*"]
+  #   }
+  # }
+
+  condition {
+    host_header {
+      values = [var.backend_subdomain_name_in]
+    }
+  }
+}
+
 resource "aws_ecs_cluster" "backend" {
   name = "${var.environment_name_in}-backend"
 
@@ -60,7 +109,7 @@ resource "aws_ecs_service" "backend" {
   }
 
   load_balancer {
-    target_group_arn = var.target_group_arn_in
+    target_group_arn = aws_lb_target_group.backend.arn
     container_name   = var.proxy_container_name_in
     container_port   = var.proxy_container_port_in
   }

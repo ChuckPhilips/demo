@@ -25,6 +25,11 @@ variable "ecr_repository_url" {}
 variable "frontend_repository_name" {}
 variable "backend_app_repository_name" {}
 variable "backend_proxy_repository_name" {}
+
+variable "frontend_container_port" {
+  default = 80
+}
+
 variable "domain_name" {
   default = "vicertbuddy.pro"
 }
@@ -38,4 +43,5 @@ locals {
     "${var.ecr_repository_url}",
     "${var.backend_proxy_repository_name}:${var.backend_proxy_container_image_tag}"
   ]))
+  frontend_image = "454624638483.dkr.ecr.us-east-2.amazonaws.com/frontend:latest"
 }

@@ -1,5 +1,5 @@
 ########################################################################
-### LOADBALANCER
+### FIREWALL
 ########################################################################
 resource "aws_security_group" "loadbalancer" {
   description = "Allow access to Application Load Balancer"
@@ -20,13 +20,34 @@ resource "aws_security_group" "loadbalancer" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  egress {
+  ingress {
     protocol    = "tcp"
-    from_port   = var.backend_proxy_port_in
-    to_port     = var.backend_proxy_port_in
+    from_port   = 81
+    to_port     = 81
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 8000
+    to_port     = 8000
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress { #FRONT AND BACK IS ON PORT 80 DIFFERENTIATED BY DOMAIN NAME ON LB
+    protocol    = "tcp"
+    from_port   = var.backend_proxy_container_port_in
+    to_port     = var.backend_proxy_container_port_in
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
 }
+
+
+########################################################################
+### LOADBALANCER
+########################################################################
 
 resource "aws_lb" "main" {
   name                       = "${var.environment_name_in}-main-loadbalancer"
@@ -44,27 +65,10 @@ resource "aws_lb" "main" {
   security_groups = [aws_security_group.loadbalancer.id]
 }
 
-resource "aws_lb_target_group" "backend" {
-  name_prefix          = var.environment_name_in
-  protocol             = "HTTP"
-  vpc_id               = var.vpc_id_in
-  target_type          = "ip"
-  port                 = var.backend_proxy_port_in
-  deregistration_delay = 60
 
-  health_check {
-    path                = "/"
-    port                = var.backend_proxy_port_in
-    interval            = 60
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-}
+########################################################################
+### LISTENERS
+########################################################################
 
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.main.arn
@@ -74,10 +78,16 @@ resource "aws_lb_listener" "https" {
   certificate_arn = aws_acm_certificate_validation.backend.certificate_arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.backend.arn
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Default action!!!"
+      status_code  = "200"
+    }
   }
 }
+
 
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
@@ -99,10 +109,9 @@ resource "aws_lb_listener" "http" {
 ########################################################################
 ### CERTIFICATE
 ########################################################################
-
 resource "aws_route53_record" "backend" {
-  zone_id = var.root_dns_zone_id_in
-  name    = var.backend_subdomain_name_in
+  zone_id = var.root_dns_zone_id_in       ##dev.vicertbuddy.pro
+  name    = var.backend_subdomain_name_in ##api
   type    = "CNAME"
   ttl     = "300"
 

@@ -6,9 +6,9 @@ app.get('/api/', (req, res) => {
 })
 
 app.get('/', (req, res) => {
-  res.send('Root location')
+  res.send('Root!')
 })
 
-app.listen(${APP_PORT}, () => {
+app.listen(8080, () => {
   console.log(`Example app listening on port 8080`)
 })

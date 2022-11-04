@@ -54,10 +54,11 @@ module "loadbalancer" {
   source                    = "../../modules/loadbalancer"
   vpc_id_in                 = module.vpc.id
   subnets_in                = module.vpc.public_subnets_ids
-  backend_proxy_port_in     = var.backend_proxy_container_port
   root_dns_zone_id_in       = module.account.zone_id
   environment_name_in       = var.environment_name
   backend_subdomain_name_in = local.backend_subdomain_name
+  backend_proxy_container_port_in = var.backend_proxy_container_port
+  frontend_container_port_in = var.frontend_container_port
 }
 
 module "backend" {
@@ -67,11 +68,12 @@ module "backend" {
   app_container_port_in    = var.backend_app_container_port
   vpc_id_in                = module.vpc.id
   subnets_in               = module.vpc.private_subnets_ids
-  target_group_arn_in      = module.loadbalancer.target_group_arn
   proxy_container_port_in  = var.backend_proxy_container_port
   proxy_container_name_in  = "nginx"
   proxy_container_image_in = local.proxy_image
   environment_name_in      = var.environment_name
+  https_listener_arn_in      = module.loadbalancer.https_listener_arn
+  backend_subdomain_name_in = local.backend_subdomain_name
 }
 
 module "frontend" {
@@ -79,6 +81,13 @@ module "frontend" {
   environment_name_in        = var.environment_name
   frontend_subdomain_name_in = local.frontend_subdomain_name
   root_dns_zone_id_in        = module.account.zone_id
+  private_subnets_in               = module.vpc.private_subnets_ids 
+  frontend_container_image_in = local.frontend_image
+  frontend_container_name_in = "nginxreact"
+  https_listener_arn_in      = module.loadbalancer.https_listener_arn
+  frontend_container_port_in  = var.frontend_container_port
+  loadbalancer_dns_name_in    = module.loadbalancer.dns_name
+  vpc_id_in = module.vpc.id
   providers = {
     aws           = aws,
     aws.us-east-1 = aws.us-east-1
@@ -86,11 +95,11 @@ module "frontend" {
 
 }
 
-#module "database" {}
+# #module "database" {}
 
-#module "serverless" {}
+# #module "serverless" {}
 
-#module config {}
+# #module config {}
 
 # output "cloudfront_id" {
 #   value = module.frontend.cloudfront_id
@@ -98,5 +107,9 @@ module "frontend" {
 
 # output "frontend_bucket_name" {
 #   value = module.frontend.bucket_name
+# }
+
+# output "domain_name" {
+#   value = local.frontend_subdomain_name
 # }
 
